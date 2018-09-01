@@ -24,3 +24,5 @@ This repo contains the work on circuit-switched network, including estimating # 
 * Usage:
 > // 16-node uniform (-n 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
 > ./traffic_pattern_gen.out -t 0 -n 4
+### mkpkt-huyao.h
+* This file is the head file for traffic_pattern_gen.cc.
