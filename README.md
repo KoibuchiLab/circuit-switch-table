@@ -5,6 +5,7 @@ This repo contains the work on circuit-switched network, including estimating # 
 * This file estimates # of slots and generates routing table for each switch.
 * It supports 2-D mesh/torus as the host interconnection network (-a).
 * It defaultly supports the update of slot # during slot ID allocation (add -d to deactivate the update).
+* The generated routing tables (output-port output-slot input-port input-slot) for corresponding switches are saved in output/, which is refreshed (NOT appended!) after each execution.
 * Compilation:
 > g++ -c huyao_cs_table_v1.cc  
 > g++ huyao_cs_table_v1.o -o huyao_cs_table_v1.out
