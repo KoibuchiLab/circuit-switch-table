@@ -27,7 +27,7 @@ This repo contains the work on circuit-switched network, including estimating # 
 > g++ -c traffic_pattern_gen.cc  
 > g++ traffic_pattern_gen.o -o traffic_pattern_gen.out
 * Usage:
-> // 16-node uniform (-n 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
+> // 16-node uniform (-t 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
 > ./traffic_pattern_gen.out -t 0 -n 4  
 
 ![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/examples/snip_20180902002828.png?token=ADxdf68kxk6IoTq_PYrlZERTx0Z08YNUks5bk_Y1wA%3D%3D)
