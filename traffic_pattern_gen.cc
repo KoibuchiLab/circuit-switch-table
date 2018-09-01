@@ -5,6 +5,7 @@
 //  Oct-02-1999 jouraku@am.ics.keio.ac.jp
 //  Aug-31-2018 huyao@nii.ac.jp
 //
+// This file helps to generate various traditional traffic patterns, including uniform, matrix, reversal, hotspot, neighbor, shuffle, butterfly, complement, tornado, all-to-all
 
 #include "mkpkt-huyao.h"
 

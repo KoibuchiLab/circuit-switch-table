@@ -8,6 +8,7 @@
 //
 // Mon Aug 28 19:24:42 JST 2018 huyao@nii.ac.jp
 //
+// This file estimates # of slots and generates routing table for each switch
 
 #include <unistd.h> // getopt
 #include <iostream>
