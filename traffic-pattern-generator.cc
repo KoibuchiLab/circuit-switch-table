@@ -1,5 +1,5 @@
 //
-//  traffic_pattern_gen.cc
+//  traffic-pattern-generator.cc
 //
 //  Jan-27-1997	nisimura@aa.cs.keio.ac.jp
 //  Oct-02-1999 jouraku@am.ics.keio.ac.jp
@@ -7,7 +7,7 @@
 //
 // This file helps to generate various traditional traffic patterns, including uniform, matrix, reversal, hotspot, neighbor, shuffle, butterfly, complement, tornado, all-to-all
 
-#include "mkpkt-huyao.h"
+#include "traffic-pattern-generator.h"
 
 using namespace std;
 

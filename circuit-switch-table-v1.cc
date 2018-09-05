@@ -1,10 +1,10 @@
 //
-// huyao_cs_table_v1.cc
+// circuit-switch-table-v1.cc
 //
 //
 // 2-D mesh/torus
-// Usage: cat test.txt | ./mk_localIDnum -a 4 -T 0 
-// Usage: ./traffic_pattern_gen.out | ./mk_localIDnum -a 4 -T 0 
+// Usage: cat test.txt | ./circuit-switch-table-v1.out -a 4 -T 0 
+// Usage: ./traffic_pattern_gen.out | ./circuit-switch-table-v1.out -a 4 -T 0 
 //
 // Mon Aug 28 19:24:42 JST 2018 huyao@nii.ac.jp
 //
