@@ -30,6 +30,8 @@ This repo contains the work on circuit-switched network, including estimating # 
 
 ![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/test-run-0.png?token=ADxdf1Rbs6ogE7ZW4qFXY4q5gIP_5O8_ks5bmhHewA%3D%3D)
 
+* Routing table generated in output/ (file name starting with sw):
+
 ![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/test-run-1.png?token=ADxdf8X-LTMfX5kY9AYisxAfUp78gDs6ks5bmhIJwA%3D%3D)
 
 > // 64-switch torus (see traffic pattern details in traffic-pattern-generator.cc below)  
