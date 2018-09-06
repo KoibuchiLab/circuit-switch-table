@@ -1,34 +1,34 @@
 //
-// circuit-switch-table-2d.cc
+// circuit-switch-table-3d.cc
 //
-// 2-D mesh/torus
-// Usage: cat test.txt | ./circuit-switch-table-2d.out -a 4 -T 0 
-// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./circuit-switch-table-2d.out -a 4 -T 0 
+// 3-D mesh/torus
+// Usage: cat test.txt | ./circuit-switch-table-3d.out -a 4 -T 0 
+// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./circuit-switch-table-3d.out -a 4 -T 0 
 //
-// Mon Aug 28 19:24:42 JST 2018 huyao@nii.ac.jp
+// Wed Sep 06 19:24:42 JST 2018 huyao@nii.ac.jp
 //
 // This file estimates # of slots and generates routing table for each switch
 
-#include <unistd.h> // getopt
+#include <unistd.h> // getopt 
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <list>
 #include <algorithm>
 
-#include <fstream> //huyao180830 file output
-#include <sstream> //huyao180830 string operation
+#include <fstream> //huyao180906 file output
+#include <sstream> //huyao180906 string operation
 
 using namespace std;
 
-#define degree 4 // 2-Dimension
+#define degree 6 // 3d huyao 170101
 
 //
 // Communication node pair
 //
 struct Pair {
-   //pair id (from 0, 1, 2, ...)
-   int pair_id; 
+   // pair id (from 0, 1, 2, ...)     
+   int pair_id; //huyao170325
    // channels
    vector<int> channels;
    // source and destination
@@ -89,14 +89,15 @@ void show_paths (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Vch, int Host_Num, int max_cp,
 bool path_based)
 {
+   cout << endl;
    // for each channel
    for (int i=0; i < Vch*(degree+1+2*Host_Num)*switch_num; i++){
-      vector<int> ID_array(Crossing_Paths[i].pair_index.size(),-1);  // list of node pairs passing through a channel
-      //cout << "Channels (" << i << ")" << endl;
-      // for each node pair passing through a channel
+      vector<int> ID_array(Crossing_Paths[i].pair_index.size(),-1);
+//      cout << "Channels (" << i << ")" << endl;
+// for each node pair passing through a channel
       for (unsigned int j=0; j < Crossing_Paths[i].pair_index.size(); j++){
 	 int t = Crossing_Paths[i].pair_index[j];
-	 //cout << " channel from " << pairs[t].src << " to " << pairs[t].dst << " is assigned to the ID " << pairs[t].ID << endl;
+//	 cout << " channel from " << pairs[t].src << " to " << pairs[t].dst << " is assigned to the ID " << pairs[t].ID << endl;
  	 ID_array.push_back(pairs[t].ID);
       }
       sort ( ID_array.begin(), ID_array.end() );
@@ -121,15 +122,15 @@ bool path_based)
    //int pointer = 0; //huyao161226
    int total_slots = 0; //huyao170307
    if (Vch == 0)
-	cout << " (east, west, south, north, from host0,... to host0,...)";
+	cout << " (east, west, south, north, front, back, from host0,... to host0,...)"; //huyao170101
    else
-   	//cout << " (east, west, south, north, from host0,... east(vch2), south(vch2), west(vch2), north(vch2), from host(vch2)0,.. to host(vch2)0,.." 
+   	//cout << " (east, west, south, north, front, back, from host0,... east(vch2), south(vch2), west(vch2), north(vch2), front, back, from host(vch2)0,.. to host(vch2)0,.." //huyao170101
 	cout << " === Number of slots === " << endl;
-        cout << " East, West, South, North, Out, In " << endl;
+        cout << " East, West, South, North, back, front, Out, In " << endl;
 
    	cout << " SW " << setw(2) << port/((degree+1+2*Host_Num)*Vch) << ":  ";    while ( elem != Crossing_Paths.end() ){
       if (port%(degree+1+2*Host_Num)!=0) cout << " " << (*elem).pair_index.size();
-      //if (pointer<4 && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} //huyao161226
+      //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} //huyao161226
 
       //huyao 170307
       if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1)  total_slots += (*elem).pair_index.size();
@@ -142,6 +143,7 @@ bool path_based)
 	    cout << " SW " << setw(2) << port/((degree+1+2*Host_Num)*Vch) << ":  ";	
       }
    }
+	cout << endl; 
 	// setting for comparing (maximum) Cross_Path 
     vector<Cross_Paths>::iterator pt = Crossing_Paths.begin();
 	while ( pt != Crossing_Paths.end() ){
@@ -150,17 +152,16 @@ bool path_based)
 	}
 
    // important output
-   // cout << "(Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
+   //cout << "(Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
 //   cout << "(Maximum) Crossing Paths: " << max_cp << endl;
    cout << endl << "=== The number of paths on this application ===" << endl << ct << " (all-to-all cases: " 	\
 	<< (switch_num*Host_Num)*(switch_num*Host_Num-1) << ")" << endl;
    cout << endl << "=== The average hops ===" << endl << setiosflags(ios::fixed | ios::showpoint) <<
 		   (float)hops/ct+1 << endl;
-   // cout << "ID size(without ID modification)" << max_id << endl;
-   // cout << "(Maximum) number of slots: " << slots;
+   //cout << "ID size(without ID modification)" << max_id << endl;
+   //cout << "(Maximum) number of slots: " << slots;
    cout << endl << " ### OVER ###" << endl;
    cout << endl;
-
 
    //huyao180830 routing table file output for each sw   
    int target_sw; // switch file to be written, sw0, sw1, ...
@@ -246,7 +247,7 @@ bool path_based)
 }
 
 // 
-// Detect crossing_paths of routing
+// Detect crossing_paths of ecube routing on mesh.
 //
 // Usage: cat $Trace | ./circuit-switch-table-2d.out
 //
@@ -275,16 +276,16 @@ int main(int argc, char *argv[])
       case 'a':
 	 array_size = atoi(optarg);
 	 break;
-      case 'A':
+	  case 'A':
 	 Allocation = atoi(optarg);	
 	 break;
 	/*  case 'v':
 	 Vch = atoi(optarg);	
 	 break; */
-      case 'T':
+	  case 'T':
 	 Topology = atoi(optarg);	
 	 break;
-      case 'Z':
+	case 'Z':
 	Host_Num = atoi(optarg);	
 	break;
       case 'd':
@@ -304,15 +305,15 @@ int main(int argc, char *argv[])
       exit (1);
    }
 
-   // cout << "ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
-   // cout << "Address method is 0(destination_based) / 1(path_based): " 
+   //cout << "ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
+   //cout << "Address method is 0(destination_based) / 1(path_based): " 
    cout << endl << "### start ###" << endl << endl << "=== Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
 	<<  path_based << " (Use -d to deactivate the update) " << endl;
    
-   // source and destination	
+   // source and destination		
    int src = -1, dst = -1, h_src = -1, h_dst = -1;
    // number of nodes
-   static int switch_num = array_size*array_size;
+   static int switch_num = array_size*array_size*array_size; //huyao 170101
    // Crossing Paths
    // including Host <-> Switch
    vector<Cross_Paths> Crossing_Paths((degree+1+2*Host_Num)*switch_num*Vch);
@@ -326,7 +327,7 @@ int main(int argc, char *argv[])
    
    // ########################################## //
    // ##############   PHASE 1   ############### //
-   // ##                routing          ## //
+   // ##        routing       ## //
    // ########################################## //
 
    while ( cin >> h_src){	
@@ -336,34 +337,51 @@ int main(int argc, char *argv[])
 
       bool wrap_around_x = false;
       bool wrap_around_y = false;
+      bool wrap_around_z = false; //huyao 170101
 
       //#######################//
-      // (switch port:0 localhost->switch, 1 +x, 2 -x, 3 -y, 4 +y, 5 switch-> localhost)
-      // switch port:1 +x, 2 -x, 3 -y, 4 +y, 
-	  // from 5 to (4+Host_Num) localhost->switch,
-	  // from (5+Host_Num) to (4+Host_Num*2) switch-> localhost
+      // (switch port:0 localhost->switch, 1 +x, 2 -x, 3 -y, 4 +y, 5 -z, 6 +z, 7 switch-> localhost)
+      // switch port:1 +x, 2 -x, 3 +y, 4 -y, 5 -z, 6 +z,
+	  // from 7 to (6+Host_Num) localhost->switch,
+	  // from (7+Host_Num) to (6+Host_Num*2) switch-> localhost
       //#######################//
 
-      // channel <-- node pair ID, node pair <-- channel ID  
+      // channel <-- node pair ID, node pair <-- channel ID 
       Pair tmp_pair(src,dst,h_src,h_dst);  
       pairs.push_back(tmp_pair);
       // int t = Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
       int t = (dst%2==1 && Topology==1) ? 
-        Vch*src*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+h_src%Host_Num
-        : Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
+	Vch*src*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+h_src%Host_Num
+	: Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
       Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-      pairs[ct].channels.push_back(t);  // node pair <-- channel ID
-      pairs[ct].pair_id = ct; //huyao170315     
-      int delta_x, delta_y, current;
+      pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+      pairs[ct].pair_id = ct; //huyao170325 
+      int delta_x, delta_y, delta_z, current, src_xy, dst_xy; //huyao 170101
+      src_xy = src%(array_size*array_size); //huyao 170101
+      dst_xy = dst%(array_size*array_size); //huyao 170101
       switch (Topology){
       case 0: //mesh
-	 delta_x = dst%array_size - src%array_size;
-	 delta_y = dst/array_size - src/array_size;
+	 delta_z = dst/(array_size*array_size) - src/(array_size*array_size); //huyao 170101
+	 delta_x = dst_xy%array_size - src_xy%array_size; //huyao 170101
+	 delta_y = dst_xy/array_size - src_xy/array_size; //huyao 170101
 	 current = src; 
 	 break;
 
       case 1: // torus
-	 delta_x = dst%array_size - src%array_size;
+	 //delta_z huyao 170102
+	 delta_z = dst/(array_size*array_size) - src/(array_size*array_size);
+	 if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
+	    //delta_z = -( delta_z + array_size/2);
+            //huyao 180417 rev
+            delta_z = delta_z + array_size;
+		wrap_around_z = true;		
+	 } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
+	    //delta_z = -( delta_z - array_size/2);
+            //huyao 180417 rev
+            delta_z = delta_z - array_size;
+		wrap_around_z = true;		
+	 }
+	 delta_x = dst_xy%array_size - src_xy%array_size; //huyao 170101
 	 if ( delta_x < 0 && abs(delta_x) > array_size/2 ) {
 	    //delta_x = -( delta_x + array_size/2);
             //huyao 180417 rev
@@ -375,7 +393,7 @@ int main(int argc, char *argv[])
             delta_x = delta_x - array_size;
 		wrap_around_x = true;		
 	 }
-	 delta_y = dst/array_size - src/array_size;
+	 delta_y = dst_xy/array_size - src_xy/array_size; //huyao 170101
 	 if ( delta_y < 0 && abs(delta_y) > array_size/2 ) {
 	    //delta_y = -( delta_y + array_size/2);
             //huyao 180417 rev
@@ -390,12 +408,49 @@ int main(int argc, char *argv[])
 	 current = src; 
 	 break;
       default:
-	 cerr << "Please select -T 0, or -T 1 option" << endl;
+	 cerr << "Please select -t0, or -t1 option" << endl;
 	 exit(1);
 	 break;
       }
 
-	 pairs[ct].hops = abs(delta_x) + abs(delta_y); 
+	 pairs[ct].hops = abs(delta_x) + abs(delta_y) + abs(delta_z); //huyao 170102
+
+      //delta_z huyao 170102
+      if (delta_z > 0){
+	 while ( delta_z != 0 ){ // -z
+	    int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
+	       Vch * current * (degree+1+2*Host_Num) + 5;
+	    Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
+	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
+	    //if ( current % (array_size*array_size) == array_size-1) { //huyao 170103
+	    if ( current >= array_size*array_size*(array_size-1)) {
+	       wrap_around_z = false;
+	       current = current - (array_size -1)*array_size*array_size;
+	    } else current += array_size*array_size; 
+	    delta_z--;
+	    hops++;
+	 }
+      } else if (delta_z < 0){
+	 while ( delta_z != 0 ){ // +z
+	    int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+6+(degree+1+2*Host_Num) :
+	       Vch * current * (degree+1+2*Host_Num) + 6;
+	    Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
+	    //if ( current % (array_size*array_size) == 0 ) { //huyao 170103
+	    if ( current < array_size*array_size) {
+	       wrap_around_z = false;
+	       current = current + (array_size -1)*array_size*array_size;
+	    } else current -= array_size*array_size;
+	    hops++;
+	    delta_z++;
+	 }
+      }
+      
+      // delta_z huyao 170102
+      if (delta_z != 0){
+	 cerr << "Routing Error " << endl;
+	 exit (1);
+      }
 
       // X
       if (delta_x > 0){
@@ -404,7 +459,7 @@ int main(int argc, char *argv[])
 	       Vch * current * (degree+1+2*Host_Num) + 1;
 	    Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
 	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
-	    if ( current % array_size == array_size-1) {
+	    if ( (current % (array_size*array_size)) % array_size == array_size-1) { //huyao 170102
 	       wrap_around_x = false;
 	       current = current - (array_size -1);
 	    } else current++; 
@@ -417,29 +472,29 @@ int main(int argc, char *argv[])
 	       Vch * current * (degree+1+2*Host_Num) + 2;
 	    Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
 	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
-	    if ( current % array_size == 0 ) {
+	    if ( (current % (array_size*array_size)) % array_size == 0 ) { //huyao 170102
 	       wrap_around_x = false;
-	       current = current + (array_size - 1 );
+	       current = current + (array_size - 1);
 	    } else current--;
 	    hops++;
 	    delta_x++;
 	 }
       }
       
-      // check X routing is finished
+      // check X routing is finished 
       if (delta_x != 0){
 	 cerr << "Routing Error " << endl;
 	 exit (1);
       }
 
-      // Y	
+      // Y 
       if (delta_y > 0){
 	 while ( delta_y != 0 ){ // -y
 	    int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
 	       Vch * current * (degree+1+2*Host_Num) + 3;
-	    Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
+	    Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
 	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
-	    if ( current >= array_size*(array_size-1) ){
+	    if ( (current % (array_size*array_size)) >= array_size*(array_size-1) ){ //huyao 170102
 	       wrap_around_y = false;
 	       current = current - array_size*(array_size -1);
 	    } else current += array_size;
@@ -452,7 +507,7 @@ int main(int argc, char *argv[])
 	       Vch * current * (degree+1+2*Host_Num) + 4;
 	    Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
 	    pairs[ct].channels.push_back(t); // node pair <-- channel ID
-	    if ( current < array_size ) {
+	    if ( (current % (array_size*array_size)) < array_size ) { //huyao 170102
 	       wrap_around_y = false;
 	       current = current + array_size*(array_size -1);
 	    } else current -= array_size;
@@ -461,8 +516,8 @@ int main(int argc, char *argv[])
 	 }
       }
       
-      // check if X,Y routing are finished 
-      if ( delta_x != 0 || delta_y != 0 ){
+      // check if X,Y,Z routing are finished 
+      if ( delta_x != 0 || delta_y != 0 || delta_z != 0){ //huyao 170102
 	 cerr << "Routing Error " << endl;
 	 exit (1);
       }
@@ -473,53 +528,54 @@ int main(int argc, char *argv[])
 		Vch*dst*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num
 		: Vch*dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
       Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-      pairs[ct].channels.push_back(t);    // node pair <-- channel ID  
+      pairs[ct].channels.push_back(t); // node pair <-- channel ID     
       ct++;	
    }	
 
 
    // ########################################## //
    // ##############   PHASE 2   ############### //
-   // ##        local ID              ## //
+   // ##  local ID       ## //
    // ########################################## //
 
    int max_cp = max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size();
    int max_id = 0;
 	
-   int max_cp_dst = 0; // number of dst-based renewable labels	
+   int max_cp_dst = 0; // number of dst-based renewable labels
 
    // calculate number of dst-based renewable label
    int max_cp_dst_t = 0;
    for (int j = 0; j < Vch * (degree+1+2*Host_Num) * switch_num; j++ ){ 
-        vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-        unsigned int p_ct = 0;
-        while ( p_ct < elem->pair_index.size() ){
-                int u = elem->pair_index[p_ct]; 
-                bool is_duplicate = false; //check if there is a same destination
-                unsigned int p_ct_t = 0;
-                while ( p_ct_t < p_ct ){
-                        int v = elem->pair_index[p_ct_t]; 
-                        if (pairs[u].h_dst == pairs[v].h_dst){
-                                is_duplicate = true;
-                        }
-                        p_ct_t++;
-                }
-                if (!is_duplicate) max_cp_dst_t++;
-                p_ct++;
-        }
-        if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
-        max_cp_dst_t = 0;
+	    vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+		unsigned int p_ct = 0;
+		while ( p_ct < elem->pair_index.size() ){
+			int u = elem->pair_index[p_ct]; 
+			bool is_duplicate = false; //check if there is a same destination
+			unsigned int p_ct_t = 0;
+			while ( p_ct_t < p_ct ){
+				int v = elem->pair_index[p_ct_t]; 
+				if (pairs[u].h_dst == pairs[v].h_dst){
+					is_duplicate = true;
+				}
+				p_ct_t++;
+			}
+			if (!is_duplicate) max_cp_dst_t++;
+			p_ct++;
+		}
+		if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
+		max_cp_dst_t = 0;
    }
 	cout << endl << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
 	cout << endl << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
 
+        //huyao 180417
         /*int slot_max = 0;
         for (int i = 0; i < Crossing_Paths.size(); i++){
                 if (i%(degree+1+2*Host_Num) != degree+2*Host_Num && i%(degree+1+2*Host_Num) != degree+2*Host_Num-1)
                         if(Crossing_Paths[i].pair_index.size() > slot_max)
                                 slot_max = Crossing_Paths[i].pair_index.size();
         }
-        cout << " slot_max = " << slot_max << endl;*/	
+        cout << " slot_max = " << slot_max << endl;	*/
 
 
    for (int j = 0; j < Vch * (degree+1+2*Host_Num) * switch_num; j++ ){ 
@@ -530,7 +586,7 @@ int main(int argc, char *argv[])
 	   if ( j%(degree+1+2*Host_Num)== 0)	 
 	      elem = Crossing_Paths.begin()+j;
 	   break;
-	// Crossing paths based method
+	   // Crossing paths based method
 	case 1:
 	   elem = max_element(Crossing_Paths.begin(),Crossing_Paths.end());
 	   break;
@@ -562,7 +618,7 @@ int main(int argc, char *argv[])
 	       int tmp = 0;
 	       while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
 	       if (pairs[t].h_dst != Crossing_Paths[i].assigned_dst_list[tmp])
-			NG_ID = true; 
+				NG_ID = true; 
 	    }
 	    s_ct++;
 	 }
@@ -575,15 +631,16 @@ int main(int argc, char *argv[])
 	 unsigned int a_ct = 0;
 	 while ( a_ct < pairs[t].channels.size() ){
 	    int j = pairs[t].channels[a_ct];
-	    Crossing_Paths[j].assigned_list.push_back(id_tmp);
-	    int t = elem->pair_index[path_ct];      	
-	    Crossing_Paths[j].assigned_dst_list.push_back(pairs[t].h_dst);
-	    a_ct++; 
+	 	Crossing_Paths[j].assigned_list.push_back(id_tmp);
+		int t = elem->pair_index[path_ct];      	
+		Crossing_Paths[j].assigned_dst_list.push_back(pairs[t].h_dst);
+		a_ct++; 
 	 }
 
 	 pairs[t].Valid = true;	    
 	 if (max_id <= id_tmp) max_id = id_tmp + 1; 
-	 path_ct++;
+
+	  path_ct++;
       }
       elem->Valid = true;
    }
