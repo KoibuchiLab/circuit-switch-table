@@ -17,9 +17,9 @@ This repo contains the work on circuit-switched network, including estimating # 
 > // for test in a 16-switch mesh (see traffic pattern details in test.txt)  
 > cat test.txt | ./circuit-switch-table-2d.out -a 4 -T 0 
 
-![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/examples/snip_20180902003648.png?token=ADxdf4ZJN5dOcQYGcf0X3smPrV0uSEUJks5bk_anwA%3D%3D)
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/test-run-0.png?token=ADxdf1Rbs6ogE7ZW4qFXY4q5gIP_5O8_ks5bmhHewA%3D%3D)
 
-![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/examples/snip_20180902003826.png?token=ADxdf8WBAz82CeqXK61UMMz2gu_IpUkIks5bk_cvwA%3D%3D)
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/test-run-1.png?token=ADxdf8X-LTMfX5kY9AYisxAfUp78gDs6ks5bmhIJwA%3D%3D)
 
 > // 64-switch torus (see traffic pattern details in traffic-pattern-generator.cc below)  
 > cat ./traffic-pattern-generator.out -t 0 | ./circuit-switch-table-2d.out -a 8 -T 1
@@ -34,6 +34,6 @@ This repo contains the work on circuit-switched network, including estimating # 
 > // 16-node uniform (-t 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
 > ./traffic-pattern-generator.out -t 0 -n 4  
 
-![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/examples/snip_20180902002828.png?token=ADxdf68kxk6IoTq_PYrlZERTx0Z08YNUks5bk_Y1wA%3D%3D)
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/test-run-2.png?token=ADxdf-zCr9D4ayVyEBRR-1eCxwrxOR5Dks5bmhIswA%3D%3D)
 ### traffic-pattern-generator.h
 * This file is the head file for traffic-pattern-generator.cc.
