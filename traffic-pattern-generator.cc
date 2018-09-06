@@ -13,7 +13,7 @@ using namespace std;
 
 #define TRFC_NUM	10	// number of traffic patterns //huyao 161228
 
-static	const	char*	SCCSID = "@(#)mkpkt " VERSION " for " SYSTEM;
+static	const	char*	SCCSID = "@(#)tpg " VERSION " for " SYSTEM;
 
 static	int	Clk	= 1;	// clocks huyao180901
 static	int	Dsts = 1;	// destinations
@@ -31,7 +31,7 @@ static  int     Data_Size   = 1; // data size
 static	int	Itvl_Flit = 1000; // flit interval
 static  int     Itvl_Pkt  = Itvl_Flit*Data_Size; // packet interval
 static	void	usage(char* myname);
-static	void	mkpkt(void);
+static	void	tpg(void);
 static	void	uniform(int src, vector<int> &dst);
 static	void	matrix(int src, vector<int> &dst);
 static	void	shuffle(int src, vector<int> &dst); //huyao161228
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 	Itvl_Pkt  = Itvl_Flit*Data_Size;
 
 	// cout << Itvl_Flit << endl;
-	mkpkt();
+	tpg();
 
 	return EXIT_SUCCESS;
 }
@@ -138,7 +138,7 @@ void usage(char* myname)
 }
 
 
-void mkpkt(void)
+void tpg(void)
 {
 	vector<int> cnt;
 	vector<int> dst;
