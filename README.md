@@ -6,8 +6,10 @@ This repo contains the work on circuit-switched network, including estimating # 
 * It supports 2-D mesh/torus as the host interconnection network (-a).
 * It defaultly supports the update of slot # during slot ID allocation (add -d to deactivate the update).
 * The generated routing tables (output-port output-slot input-port input-slot) for corresponding switches are saved in output/, which is refreshed (NOT appended!) after each execution.
-* Switch Port Number: East 0, West 1, South 2, North 3.  
-![result]()
+* Switch Port Number: East 0, West 1, South 2, North 3.
+
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/sw.png?token=ADxdf3SPO-P_p9ufh3P7CwIziQNqFATQks5bmgCTwA%3D%3D)
+
 * Compilation:
 > g++ -c circuit-switch-table-2d.cc  
 > g++ circuit-switch-table-2d.o -o circuit-switch-table-2d.out
