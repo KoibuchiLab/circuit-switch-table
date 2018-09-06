@@ -8,7 +8,7 @@ This repo contains the work on circuit-switched network, including estimating # 
 * The generated routing tables (output-port output-slot input-port input-slot) for corresponding switches are saved in output/, which is refreshed (NOT appended!) after each execution.
 * Switch Number: as follows.
 
-![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/sw.png?token=ADxdf3SPO-P_p9ufh3P7CwIziQNqFATQks5bmgCTwA%3D%3D)
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/2dmesh.png?token=ADxdf1eiO4DEO7oO5y0mAHlzoTkJzifxks5bmkqmwA%3D%3D)
 
 * Switch Port Number: East 0, West 1, South 2, North 3.
 
@@ -27,6 +27,20 @@ This repo contains the work on circuit-switched network, including estimating # 
 
 > // 64-switch torus (see traffic pattern details in traffic-pattern-generator.cc below)  
 > cat ./traffic-pattern-generator.out -t 0 | ./circuit-switch-table-2d.out -a 8 -T 1
+### circuit-switch-table-3d.cc
+* This file estimates # of slots and generates routing table for each switch.
+* It supports 3-D mesh/torus as the host interconnection network (-a).
+* The same as circuit-switch-table-2d.cc.
+* Switch Number: as follows.
+
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/3dmesh.png?token=ADxdf9tXgF-ghOZKPNd1aCjeYO0bp08bks5bmks-wA%3D%3D)
+
+* Switch Port Number: East 0, West 1, South 2, North 3, back 4, front 5.
+
+![result](https://raw.githubusercontent.com/KoibuchiLab/circuit-switch-table/master/fig/sw-3d.png?token=ADxdfy_Vk1FZ6x5fTIXnac_S17FiXe1xks5bmktrwA%3D%3D)
+
+* Compilation: the same as circuit-switch-table-2d.cc 
+* Usage: the same as circuit-switch-table-2d.cc
 ### test.txt
 * This test file shows a simple src-dst traffic for 16-node mesh.
 ### traffic-pattern-generator.cc
