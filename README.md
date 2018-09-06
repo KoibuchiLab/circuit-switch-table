@@ -1,3 +1,10 @@
+<style>
+img{
+    width: 80%;
+    padding-left: 10%;
+}
+</style>
+
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
 ## Source Files
