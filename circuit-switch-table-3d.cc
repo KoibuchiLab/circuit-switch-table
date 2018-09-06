@@ -249,7 +249,7 @@ bool path_based)
 // 
 // Detect crossing_paths of ecube routing on mesh.
 //
-// Usage: cat $Trace | ./circuit-switch-table-2d.out
+// Usage: cat $Trace | ./circuit-switch-table-3d.out
 //
 //
 //  Notice that, 
