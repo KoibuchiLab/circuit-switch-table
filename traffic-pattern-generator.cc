@@ -1,8 +1,6 @@
 //
 //  traffic-pattern-generator.cc
 //
-//  Jan-27-1997	nisimura@aa.cs.keio.ac.jp
-//  Oct-02-1999 jouraku@am.ics.keio.ac.jp
 //  Aug-31-2018 huyao@nii.ac.jp
 //
 // This file helps to generate various traditional traffic patterns, including uniform, matrix, reversal, hotspot, neighbor, shuffle, butterfly, complement, tornado, all-to-all
@@ -11,14 +9,14 @@
 
 using namespace std;
 
-#define TRFC_NUM	10	// number of traffic patterns //huyao 161228
+#define TRFC_NUM	10	// number of traffic patterns 
 
 static	const	char*	SCCSID = "@(#)tpg " VERSION " for " SYSTEM;
 
-static	int	Clk	= 1;	// clocks huyao180901
+static	int	Clk	= 1;	// clocks 
 static	int	Dsts = 1;	// destinations
-static	int	Node_Num = 16; // nodes huyao180901
-static	int	Npu	= 4;	// array size huyao180901
+static	int	Node_Num = 16; // nodes 
+static	int	Npu	= 4;	// array size 
 static	int	Sgm	= 0;	// Standard deviation
 static  int 	Trf = 0; 	// traffic pattern
 static	int	Dimm	= 2; 	// dimensions
@@ -34,18 +32,18 @@ static	void	usage(char* myname);
 static	void	tpg(void);
 static	void	uniform(int src, vector<int> &dst);
 static	void	matrix(int src, vector<int> &dst);
-static	void	shuffle(int src, vector<int> &dst); //huyao161228
-static	void	butterfly(int src, vector<int> &dst); //huyao161228
-static	void	complement(int src, vector<int> &dst); //huyao161228
-static	void	tornado(int src, vector<int> &dst); //huyao161228
-static	void	alltoall(int src, vector<int> &dst); //huyao170117
-static	int	ata = 0;	//huyao170117
+static	void	shuffle(int src, vector<int> &dst); 
+static	void	butterfly(int src, vector<int> &dst); 
+static	void	complement(int src, vector<int> &dst);
+static	void	tornado(int src, vector<int> &dst); 
+static	void	alltoall(int src, vector<int> &dst); 
+static	int	ata = 0;	//all-to-all
 static	void	reversal(int src, vector<int> &dst);
 static	void	hotspot(int src, vector<int> &dst);
 static  void    only_neighbor(int src, vector<int> &dst);
 static	void	mkhotspot(void);
 
-void    (*traffic[10])(int, vector<int>&) = {uniform, matrix, reversal, hotspot, only_neighbor, shuffle, butterfly, complement, tornado, alltoall}; //huyao 170117
+void    (*traffic[10])(int, vector<int>&) = {uniform, matrix, reversal, hotspot, only_neighbor, shuffle, butterfly, complement, tornado, alltoall}; 
 
 static	double	nr(void);
 
@@ -215,7 +213,7 @@ void tpg(void)
 #else
 			if ( (clk%Itvl_Pkt) == 0 || clk == 0)
 			{
-				if (Trf == 9) //huyao 170117 all to all
+				if (Trf == 9) // all to all
 				{
 					for (int j = 0; j < Node_Num-1; j++)
 					{
@@ -266,7 +264,7 @@ void hotspot(int src, vector<int> &dst)
 
 }
 
-/// nonuniform(perfect shuffle) huyao161228///
+/// nonuniform(perfect shuffle)///
 void shuffle(int src, vector<int> &dst)
 {
 	int	dst_node = 0;
@@ -306,7 +304,7 @@ void shuffle(int src, vector<int> &dst)
 	}
 }
 
-/// nonuniform(butterfly) huyao161228///
+/// nonuniform(butterfly)///
 void butterfly(int src, vector<int> &dst)
 {
 	int	dst_node = 0;
@@ -355,7 +353,7 @@ void butterfly(int src, vector<int> &dst)
 	}
 }
 
-/// nonuniform(bit complement) huyao161228///
+/// nonuniform(bit complement)///
 void complement(int src, vector<int> &dst)
 {
 	int	dst_node = 0;
@@ -567,7 +565,6 @@ void mkhotspot(void)
 	cout << endl;
 }
 
-//huyao 161228
 void tornado(int src, vector<int> &dst)
 {
 
@@ -581,7 +578,6 @@ void tornado(int src, vector<int> &dst)
 
 }
 
-//huyao 170117
 void alltoall(int src, vector<int> &dst)
 {
 
@@ -692,6 +688,3 @@ void only_neighbor(int src, vector<int> &dst)
 	}
 
 }
-
-
-
