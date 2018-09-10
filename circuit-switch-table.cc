@@ -285,6 +285,10 @@ int main(int argc, char *argv[])
 	 path_based = false;
 	 break;
       case 'D':
+         if (atoi(optarg) > 4 || atoi(optarg) < 2){
+              cerr << " Please input -D $dimension (2 <= $dimension <= 4)" << endl;
+              return EXIT_FAILURE;   
+         }
 	 degree = 2*atoi(optarg);
 	 break;
       default:
