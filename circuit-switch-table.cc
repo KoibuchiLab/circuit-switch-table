@@ -93,11 +93,10 @@ void show_paths (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Vch, int Host_Num, int max_cp,
 bool path_based, int degree)
 {
-   cout << endl;
    // for each channel
    for (int i=0; i < Vch*(degree+1+2*Host_Num)*switch_num; i++){
       vector<int> ID_array(Crossing_Paths[i].pair_index.size(),-1);
-//      cout << "Channels (" << i << ")" << endl;
+//      cout << " Channels (" << i << ")" << endl;
 // for each node pair passing through a channel
       for (unsigned int j=0; j < Crossing_Paths[i].pair_index.size(); j++){
 	 int t = Crossing_Paths[i].pair_index[j];
@@ -113,11 +112,10 @@ bool path_based, int degree)
 	 	k++;
       }
       if (error){
-	 cout << "ERROR : ID collision is occured!!." << endl;      
+	 cout << " ERROR : ID collision is occured!!." << endl;      
 	 exit (1);
       }
    }
-   cout << endl;
 
    // output
    vector<Cross_Paths>::iterator elem = Crossing_Paths.begin();
@@ -154,13 +152,12 @@ bool path_based, int degree)
         ++pt;
 	}
 
-   //cout << "(Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
-   //cout << "(Maximum) Crossing Paths: " << max_cp << endl;
-   cout << endl << "=== The number of paths on this application ===" << endl << ct << " (all-to-all cases: " << (switch_num*Host_Num)*(switch_num*Host_Num-1) << ")" << endl;
-   cout << endl << "=== The average hops ===" << endl << setiosflags(ios::fixed | ios::showpoint) << (float)hops/ct+1 << endl;
-   //cout << "ID size(without ID modification)" << max_id << endl;
-   //cout << "(Maximum) number of slots: " << slots;
-   cout << endl << " ### OVER ###" << endl;
+   //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
+   //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
+   cout << " === The number of paths on this application ===" << endl << ct << " (all-to-all cases: " << (switch_num*Host_Num)*(switch_num*Host_Num-1) << ")" << endl;
+   cout << " === The average hops ===" << endl << setiosflags(ios::fixed | ios::showpoint) << (float)hops/ct+1 << endl;
+   //cout << " ID size(without ID modification)" << max_id << endl;
+   //cout << " (Maximum) number of slots: " << slots;
    cout << endl;
 
    // routing table file output for each sw   
@@ -172,9 +169,11 @@ bool path_based, int degree)
    string input_port_s; // string
    string slot_num_s; // string
    system("rm output/sw*");  // delete previous output results
+   cout << " === Routing information of each node pair ===" << endl; //routing information of each node pair
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
+            cout << " Pair ID " << current_pair.pair_id << " (local ID " << slot_num << "): ";
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = -1;
@@ -182,6 +181,7 @@ bool path_based, int degree)
                     if (j == 1){ // source switch
                             target_sw = current_pair.src;
                             output_port = current_pair.channels[j]%(degree+1+2*Host_Num)-1;
+                            cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
                     }
                     else if (j == current_pair.channels.size()-1){ // destination switch
                             target_sw = current_pair.dst;
@@ -192,6 +192,7 @@ bool path_based, int degree)
                             else{
                                     input_port--; // 1-->0, 3-->2, ...
                             }
+                            cout << "SW " << target_sw;
                     }
                     else{
                             target_sw = current_pair.channels[j]/((degree+1+2*Host_Num)*Vch);
@@ -203,6 +204,7 @@ bool path_based, int degree)
                             else{
                                     input_port--; // 1-->0, 3-->2, ...
                             }
+                            cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
                     }
                     char filename[100]; 
                     sprintf(filename, "output/sw%d", target_sw); // save to output/ 
@@ -242,8 +244,10 @@ bool path_based, int degree)
                     outputfile.close();
 
             }
+            cout << endl;
     }
     cout << " !!! Routing tables for each sw are saved to output/ !!!" << endl << endl;
+    cout << " ### OVER ###" << endl;
 }
 
 // 
@@ -295,7 +299,6 @@ int main(int argc, char *argv[])
       }
    }
 
-   cout << dimension << endl;
    if (dimension > 4 || dimension < 2){
         cerr << " Please input -D $dimension (2 <= $dimension <= 4)" << endl;
         exit (1);   
@@ -309,9 +312,9 @@ int main(int argc, char *argv[])
       exit (1);
    }
 
-   //cout << "ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
-   //cout << "Address method is 0(destination_based) / 1(path_based): " 
-   cout << endl << "### start ###" << endl << endl << "=== Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
+   //cout << " ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
+   //cout << " Address method is 0(destination_based) / 1(path_based): " 
+   cout << " ### start ###" << endl << endl << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
 	<<  path_based << " (Use -d to deactivate the update) " << endl;
    
    // source and destination		
@@ -836,8 +839,8 @@ int main(int argc, char *argv[])
 		if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
 		max_cp_dst_t = 0;
    }
-	cout << endl << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
-	cout << endl << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
+	cout << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
+	cout << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
 
         /*int slot_max = 0;
         for (int i = 0; i < Crossing_Paths.size(); i++){
