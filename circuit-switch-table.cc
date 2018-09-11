@@ -263,15 +263,16 @@ int main(int argc, char *argv[])
    int c;
    static bool path_based = true; //false:destination_based, true:path_based
    static int degree = 4; // degree = 2 * dimension
+   static int dimension = 2; //mesh or torus
    
-   while((c = getopt(argc, argv, "a:A:Z:T:d")) != -1) {
+   while((c = getopt(argc, argv, "a:A:Z:T:dD:")) != -1) {
       switch (c) {
       case 'a':
 	 array_size = atoi(optarg);
 	 break;
-      case 'A':
+      /* case 'A':
 	 Allocation = atoi(optarg);	
-	 break;
+	 break; */
 	/*  case 'v':
 	 Vch = atoi(optarg);	
 	 break; */
@@ -285,11 +286,7 @@ int main(int argc, char *argv[])
 	 path_based = false;
 	 break;
       case 'D':
-         if (atoi(optarg) > 4 || atoi(optarg) < 2){
-              cerr << " Please input -D $dimension (2 <= $dimension <= 4)" << endl;
-              return EXIT_FAILURE;   
-         }
-	 degree = 2*atoi(optarg);
+         dimension = atoi(optarg);
 	 break;
       default:
 	 //usage(argv[0]);
@@ -297,6 +294,13 @@ int main(int argc, char *argv[])
 	 return EXIT_FAILURE;
       }
    }
+
+   cout << dimension << endl;
+   if (dimension > 4 || dimension < 2){
+        cerr << " Please input -D $dimension (2 <= $dimension <= 4)" << endl;
+        exit (1);   
+   }
+   degree = 2 * dimension;
 
    if (Topology==1) Vch=2; //Torus
    else if (Topology==0) Vch=1;//Mesh
@@ -313,7 +317,7 @@ int main(int argc, char *argv[])
    // source and destination		
    int src = -1, dst = -1, h_src = -1, h_dst = -1;
    // number of nodes
-   static int switch_num = pow(array_size,degree/2);
+   static int switch_num = pow(array_size,dimension);
    // Crossing Paths
    // including Host <-> Switch
    vector<Cross_Paths> Crossing_Paths((degree+1+2*Host_Num)*switch_num*Vch);
@@ -359,15 +363,15 @@ int main(int argc, char *argv[])
       pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
       pairs[ct].pair_id = ct; 
       int delta_x, delta_y, delta_z, delta_a, current, src_xy, dst_xy, src_xyz, dst_xyz; // 2D, 3D, 4D
-      if (degree/2 == 2){ //2D
-         src_xy = src%array_size; 
-         dst_xy = dst%array_size; 
+      if (dimension == 2){ //2D
+         src_xy = src; 
+         dst_xy = dst; 
       }
-      if (degree/2 == 3){ //3D
+      if (dimension == 3){ //3D
          src_xy = src%int(pow(array_size,2)); 
          dst_xy = dst%int(pow(array_size,2)); 
       }
-      if (degree/2 == 4){ //4D
+      if (dimension == 4){ //4D
          src_xyz = src%int(pow(array_size,3)); 
          dst_xyz = dst%int(pow(array_size,3)); 
          src_xy = src_xyz%int(pow(array_size,2)); 
@@ -375,26 +379,28 @@ int main(int argc, char *argv[])
       }
       switch (Topology){
       case 0: //mesh
-      	 if (degree/2 == 2){ //2D
-                delta_x = dst%array_size - src%array_size;
-	        delta_y = dst/array_size - src/array_size;
-         }
-      	 if (degree/2 == 3){ //3D
+      	//  if (dimension == 2){ //2D
+        //         delta_x = dst%array_size - src%array_size;
+	//         delta_y = dst/array_size - src/array_size;
+        //  }
+      	 if (dimension == 3){ //3D
 	        delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2)); 
-	        delta_x = dst_xy%array_size - src_xy%array_size; 
-	        delta_y = dst_xy/array_size - src_xy/array_size; 
+	        // delta_x = dst_xy%array_size - src_xy%array_size; 
+	        // delta_y = dst_xy/array_size - src_xy/array_size; 
          }
-      	 if (degree/2 == 4){ //4D
+      	 if (dimension == 4){ //4D
                delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
 	       delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2)); 
-	       delta_x = dst_xy%array_size - src_xy%array_size; 
-	       delta_y = dst_xy/array_size - src_xy/array_size; 
+	//        delta_x = dst_xy%array_size - src_xy%array_size; 
+	//        delta_y = dst_xy/array_size - src_xy/array_size; 
          }
+         delta_x = dst_xy%array_size - src_xy%array_size; 
+         delta_y = dst_xy/array_size - src_xy/array_size; 
 	 current = src; 
 	 break;
 
       case 1: // torus
-         if (degree/2 > 3){ //4D
+         if (dimension == 4){ //4D
                 delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
                 if ( delta_a < 0 && abs(delta_a) > array_size/2 ) {
                 //delta_a = -( delta_a + array_size/2);
@@ -405,9 +411,19 @@ int main(int argc, char *argv[])
                 delta_a = delta_a - array_size;
                         wrap_around_a = true;		
                 }
+                delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2));
+                if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
+                //delta_z = -( delta_z + array_size/2);
+                delta_z = delta_z + array_size;
+                        wrap_around_z = true;		
+                } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
+                //delta_z = -( delta_z - array_size/2);
+                delta_z = delta_z - array_size;
+                        wrap_around_z = true;		
+                }
          }
-         if (degree/2 > 2){ //4D, 3D
-                delta_z = dst/int(pow(array_size,2)) - int(pow(array_size,2));
+         if (dimension == 3){ //3D
+                delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2));
                 if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
                 //delta_z = -( delta_z + array_size/2);
                 delta_z = delta_z + array_size;
@@ -447,20 +463,20 @@ int main(int argc, char *argv[])
 	 break;
       }
 
-      if (degree/2 == 4) //4D
+      if (dimension == 4) //4D
       {
          pairs[ct].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z) + abs(delta_a);
       }
-      if (degree/2 == 3) //3D
+      if (dimension == 3) //3D
       {
          pairs[ct].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z);
       }
-      if (degree/2 == 2) //2D
+      if (dimension == 2) //2D
       {
          pairs[ct].hops = abs(delta_x) + abs(delta_y);
       }
 
-      if (degree/2 == 4){ //4D routing
+      if (dimension == 4){ //4D routing
         if (delta_a > 0){
                 while ( delta_a != 0 ){  //-a
                 int t = (wrap_around_a) ? Vch*current*(degree+1+2*Host_Num)+7+(degree+1+2*Host_Num) :
@@ -600,7 +616,7 @@ int main(int argc, char *argv[])
         }         
       }
     
-      if (degree/2 == 3){ //3D routing
+      if (dimension == 3){ //3D routing
         if (delta_z > 0){
                 while ( delta_z != 0 ){ // -z
                 int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
@@ -707,7 +723,7 @@ int main(int argc, char *argv[])
         }        
       }
 
-      if (degree/2 == 2){ //2D routing
+      if (dimension == 2){ //2D routing
         // X 
         if (delta_x > 0){
                 while ( delta_x != 0 ){ // +x
@@ -839,7 +855,7 @@ int main(int argc, char *argv[])
 	   if ( j%(degree+1+2*Host_Num)== 0)	 
 	      elem = Crossing_Paths.begin()+j;
 	   break;
-	   // Crossing paths based method
+	// Crossing paths based method
 	case 1:
 	   elem = max_element(Crossing_Paths.begin(),Crossing_Paths.end());
 	   break;
