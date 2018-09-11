@@ -1,9 +1,22 @@
 //
-//  traffic-pattern-generator.cc
+// traffic-pattern-generator.cc
 //
-//  Aug-31-2018 huyao@nii.ac.jp
+// Aug-31-2018 huyao@nii.ac.jp
 //
-// This file helps to generate various traditional traffic patterns, including uniform, matrix, reversal, hotspot, neighbor, shuffle, butterfly, complement, tornado, all-to-all
+// This file helps to generate various traditional traffic patterns, including (-t)
+// 0 uniform, 
+// 1 matrix, 
+// 2 reversal, 
+// 3 hotspot, 
+// 4 neighbor, 
+// 5 shuffle, 
+// 6 butterfly, 
+// 7 complement, 
+// 8 tornado, 
+// 9 all-to-all
+//
+// Usage: ./traffic-pattern-generator.out -t 0 -n 4  <-- uniform 16-node
+//
 
 #include "traffic-pattern-generator.h"
 

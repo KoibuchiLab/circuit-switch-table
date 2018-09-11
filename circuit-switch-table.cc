@@ -13,6 +13,7 @@
 // Wed Sep 06 19:24:42 JST 2018 huyao@nii.ac.jp
 //
 // This file estimates # of slots and generates routing table for each switch
+//
 
 #include <unistd.h> // getopt 
 #include <iostream>
@@ -158,7 +159,6 @@ bool path_based, int degree)
    cout << " === The average hops ===" << endl << setiosflags(ios::fixed | ios::showpoint) << (float)hops/ct+1 << endl;
    //cout << " ID size(without ID modification)" << max_id << endl;
    //cout << " (Maximum) number of slots: " << slots;
-   cout << endl;
 
    // routing table file output for each sw   
    int target_sw; // switch file to be written, sw0, sw1, ...
@@ -246,7 +246,7 @@ bool path_based, int degree)
             }
             cout << endl;
     }
-    cout << " !!! Routing tables for each sw are saved to output/ !!!" << endl << endl;
+    cout << " !!! Routing tables for each sw are saved to output/ !!!" << endl;
     cout << " ### OVER ###" << endl;
 }
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 
    //cout << " ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
    //cout << " Address method is 0(destination_based) / 1(path_based): " 
-   cout << " ### start ###" << endl << endl << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
+   cout << " ### start ###" << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
 	<<  path_based << " (Use -d to deactivate the update) " << endl;
    
    // source and destination		
