@@ -1,4 +1,31 @@
--100 0100  // from node 5 to node 6
-0200 -100  // from node 6 to node 14
-0001 0101  // from node 5 to node 7
-0201 -101  // from node 6 to node 10
+5 5
+00
+2 
+void
+void
+void
+void
+01
+void
+2 
+void
+void
+void
+02
+void
+void
+void
+void
+void
+03
+0 
+0 
+void
+void
+void
+04
+void
+void
+void
+void
+void

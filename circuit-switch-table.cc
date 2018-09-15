@@ -73,6 +73,8 @@ struct Cross_Paths {
    bool Valid;
    // initialize
    Cross_Paths():Valid(false){}
+   // routing table
+   vector<int> routing_table;  // input port, slot number, src node, dst node, ...
 
    bool operator == (Cross_Paths &a){
       return Valid == a.Valid && pair_index.size() == a.pair_index.size();
@@ -91,7 +93,7 @@ struct Cross_Paths {
 // output and error check
 //
 void show_paths (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
-int max_id, vector<Pair> pairs, int hops, int Vch, int Host_Num, int max_cp,
+int max_id, vector<Pair> pairs, int hops, int Vch, int Host_Num, int max_cp, int max_cp_dst,
 bool path_based, int degree)
 {
    // for each channel
@@ -176,76 +178,178 @@ bool path_based, int degree)
             cout << " Pair ID " << current_pair.pair_id << " (local ID " << slot_num << "): ";
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
-                    input_port = -1;
-                    output_port = -1;
+                    input_port = 0;
+                    output_port = 0;
                     if (j == 1){ // source switch
                             target_sw = current_pair.src;
-                            output_port = current_pair.channels[j]%(degree+1+2*Host_Num)-1;
+                            output_port = current_pair.channels[j]%(degree+1+2*Host_Num);
                             cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
                     }
                     else if (j == current_pair.channels.size()-1){ // destination switch
                             target_sw = current_pair.dst;
-                            input_port = current_pair.channels[j-1]%(degree+1+2*Host_Num)-1;
+                            input_port = current_pair.channels[j-1]%(degree+1+2*Host_Num);
                             if (input_port%2 == 0){
-                                    input_port++; // 0-->1, 2-->3, ...
+                                    input_port--; // 2-->1, 4-->3, ...
                             }
                             else{
-                                    input_port--; // 1-->0, 3-->2, ...
+                                    input_port++; // 1-->2, 3-->4, ...
                             }
                             cout << "SW " << target_sw;
                     }
                     else{
                             target_sw = current_pair.channels[j]/((degree+1+2*Host_Num)*Vch);
-                            output_port = current_pair.channels[j]%(degree+1+2*Host_Num)-1;
-                            input_port = current_pair.channels[j-1]%(degree+1+2*Host_Num)-1;
+                            output_port = current_pair.channels[j]%(degree+1+2*Host_Num);
+                            input_port = current_pair.channels[j-1]%(degree+1+2*Host_Num);
                             if (input_port%2 == 0){
-                                    input_port++; // 0-->1, 2-->3, ...
+                                    input_port--; // 2-->1, 4-->3, ...
                             }
                             else{
-                                    input_port--; // 1-->0, 3-->2, ...
+                                    input_port++; // 1-->2, 3-->4, ...
                             }
                             cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
                     }
-                    char filename[100]; 
-                    sprintf(filename, "output/sw%d", target_sw); // save to output/ 
-                    char* fn = filename;
-                    ofstream outputfile(fn, ios::app); // iostream append
-                    stringstream ss_op;
-                    stringstream ss_ip;
-                    stringstream ss_sn;
-                    output_port_s = "";
-                    input_port_s = "";
-                    slot_num_s = "";
-                    if (output_port < 10 && output_port > -1){
-                            ss_op << "0" << output_port;
-                            output_port_s = ss_op.str();
-                    }
-                    else{
-                            ss_op << output_port;
-                            output_port_s = ss_op.str();
-                    }
-                    if (input_port < 10 && input_port > -1){
-                            ss_ip << "0" << input_port;
-                            input_port_s = ss_ip.str();
-                    }
-                    else{
-                            ss_ip << input_port;
-                            input_port_s = ss_ip.str();
-                    }
-                    if (slot_num < 10 && slot_num > -1){
-                            ss_sn << "0" << slot_num;
-                            slot_num_s = ss_sn.str();
-                    }
-                    else{
-                            ss_sn << slot_num;
-                            slot_num_s = ss_sn.str();
-                    }
-                    outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
-                    outputfile.close();
+                //     char filename[100]; 
+                //     sprintf(filename, "output/sw%d", target_sw); // save to output/ 
+                //     char* fn = filename;
+                //     ofstream outputfile(fn, ios::app); // iostream append
+                //     stringstream ss_op;  // output port
+                //     stringstream ss_ip;  // input port
+                //     stringstream ss_sn;  // slot number
+                //     output_port_s = "";
+                //     input_port_s = "";
+                //     slot_num_s = "";
+                //     if (output_port < 10 && output_port > -1){
+                //             ss_op << "0" << output_port;
+                //             output_port_s = ss_op.str();
+                //     }
+                //     else{
+                //             ss_op << output_port;
+                //             output_port_s = ss_op.str();
+                //     }
+                //     if (input_port < 10 && input_port > -1){
+                //             ss_ip << "0" << input_port;
+                //             input_port_s = ss_ip.str();
+                //     }
+                //     else{
+                //             ss_ip << input_port;
+                //             input_port_s = ss_ip.str();
+                //     }
+                //     if (slot_num < 10 && slot_num > -1){
+                //             ss_sn << "0" << slot_num;
+                //             slot_num_s = ss_sn.str();
+                //     }
+                //     else{
+                //             ss_sn << slot_num;
+                //             slot_num_s = ss_sn.str();
+                //     }
+                //     outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
+                //     outputfile.close();
+
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
 
             }
             cout << endl;
     }
+
+   for (int i=0; i < switch_num; i++){
+        char filename[100]; 
+        sprintf(filename, "output/sw%d", i); // save to output/ 
+        char* fn = filename;
+        ofstream outputfile(fn, ios::app); // iostream append   
+        int slots;
+        if (path_based == true){
+                slots = max_cp;
+        } 
+        else{
+                slots = max_cp_dst;
+        }
+        outputfile << degree+1 << " " << slots << endl;  // number of output ports, number of slots
+        outputfile << "00" << endl;  // output 00 --> localhost
+        bool slot_occupied = false;
+        for (int s=0; s < slots; s++){
+                if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
+                        for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+4){
+                                if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
+                                        outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
+                                        slot_occupied = true;
+                                }  
+                        }        
+                }
+                else if (Vch==2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size() > 0){ //torus
+                        for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size(); j=j+4){
+                                if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
+                                        outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table[j] << " ";
+                                        slot_occupied = true;
+                                }
+                        }        
+                }
+                if (slot_occupied == false){
+                        outputfile << "void";
+                }
+                outputfile << endl;   
+                slot_occupied = false;             
+        }
+        // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
+        //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j++){
+        //                 outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
+        //                 if ((j+1)%4 == 0) outputfile << endl;
+        //         }        
+        // }
+        // else if (Vch == 2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size() > 0){ //torus
+        //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size(); j++){
+        //                 outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table[j] << " ";
+        //                 if ((j+1)%4 == 0) outputfile << endl;
+        //         }        
+        // }
+        for (int op=1; op < degree+1; op++){
+                if (op < 10 && op > -1){
+                        outputfile << "0" << op << endl;
+                }
+                else{
+                        outputfile << op << endl;
+                }  
+                for (int s=0; s < slots; s++){
+                        if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
+                                for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                        if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
+                                                outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table[j] << " ";
+                                                slot_occupied = true;
+                                        }  
+                                }        
+                        }
+                        else if (Vch==2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size() > 0){ //torus
+                                for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size(); j=j+4){
+                                        if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table[j+1] == s){  // j+1 --> slot number
+                                                outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table[j] << " ";
+                                                slot_occupied = true;
+                                        }
+                                }        
+                        }
+                        if (slot_occupied == false){
+                                outputfile << "void";
+                        }
+                        outputfile << endl;   
+                        slot_occupied = false;                         
+                }
+                // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
+                //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size(); j++){
+                //                 outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table[j] << " ";
+                //                 if ((j+1)%4 == 0) outputfile << endl;
+                //         }        
+                // }
+                // else if (Vch == 2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size() > 0){ //torus
+                //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size(); j++){
+                //                 outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table[j] << " ";
+                //                 if ((j+1)%4 == 0) outputfile << endl;
+                //         }        
+                // }
+
+        }
+        outputfile.close();
+   }
     cout << " !!! Routing tables for each sw are saved to output/ !!!" << endl;
     cout << " ### OVER ###" << endl;
 }
@@ -917,7 +1021,7 @@ int main(int argc, char *argv[])
       elem->Valid = true;
    }
    
-   show_paths(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Vch, Host_Num, max_cp, path_based, degree);   
+   show_paths(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Vch, Host_Num, max_cp, max_cp_dst, path_based, degree);   
    
    return 0;
 }
