@@ -212,6 +212,10 @@ int main(int argc, char *argv[])
       
       current = node_num + current/HOST_NUM;
       while ( current != dst ){ 
+
+        cout << "  " << current << endl;
+        cout << "  " << dst << endl;
+
 	 int t;
 	 // root switch
 	 if ( current == node_num + node_num/HOST_NUM 

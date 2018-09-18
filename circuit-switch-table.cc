@@ -373,25 +373,28 @@ bool path_based, int degree)
 //
 void show_paths_tree (vector<Cross_Paths> Crossing_Paths, int ct, int node_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int port)
+bool path_based, int PORT)
 {
         // for each channel
         cout << " === Port information for each switch === " << endl;
-        for (int i=0; i <= port*(node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)); i++){
+        for (int i=0; i <= PORT*(node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)); i++){
         vector<int> ID_array(Crossing_Paths[i].pair_index.size(),-1);
 //      cout << " Channels (" << i << ")" << endl;
-        if (i%port == 0) cout << " Node " << i/port << " : " << endl;
+        if (i%PORT == 0) {
+                if ( i == PORT * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)) && node_num/(int)pow(Host_Num,2) <= 1 ) break; // two-layer switches
+                cout << " Node " << i/PORT << " : " << endl;                
+        }
 // for each node pair passing through a channel
         for (unsigned int j=0; j < Crossing_Paths[i].pair_index.size(); j++){
                 int t = Crossing_Paths[i].pair_index[j];
 //	 cout << " channel from " << pairs[t].src << " to " << pairs[t].dst << " is assigned to the ID " << pairs[t].ID << endl;
                 ID_array.push_back(pairs[t].ID);
 
-                if (i%port == 0){
-                        cout << "      Port " << i%port << " (UP) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl; 
+                if (i%PORT == 0){
+                        cout << "      Port " << i%PORT << " (UP) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl; 
                 }
                 else{
-                        cout << "      Port " << i%port << " (DOWN) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;         
+                        cout << "      Port " << i%PORT << " (DOWN) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;         
                 }
                 
         }
@@ -414,17 +417,18 @@ bool path_based, int port)
         int outport = 0;
         cout << " === Number of slots === " << endl;
         cout << " UP0, DOWN1, DOWN2, DOWN3, DOWN4, ... " << endl;
-        cout << " SW " << setw(2) << outport/port << ":  ";    
+        cout << " Node " << setw(2) << outport/PORT << ":  ";    
         while ( elem != Crossing_Paths.end() ){
                 cout << " " << (*elem).pair_index.size();
                 elem ++; outport++;
-                if ( outport/port == 0 && elem != Crossing_Paths.end() ){
-                        if ( node_num/(int)pow(Host_Num,2) <= 1 && outport == port * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)) ) break;
+                if ( outport%PORT == 0 && elem != Crossing_Paths.end() ){
+                        if ( outport == PORT * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)) && node_num/(int)pow(Host_Num,2) <= 1 ) break; // two-layer switches
                         cout << endl;		
-                        cout << " Node " << setw(2) << outport/port << ":  ";	
+                        cout << " Node " << setw(2) << outport/PORT << ":  ";	
                 }
         }
-        //cout << endl; 
+        cout << endl; 
+
         // setting for comparing (maximum) Cross_Path 
         vector<Cross_Paths>::iterator pt = Crossing_Paths.begin();
         while ( pt != Crossing_Paths.end() ){
@@ -458,18 +462,18 @@ bool path_based, int port)
                         input_port = -1;
                         output_port = -1;
 
-                        target_sw = current_pair.channels[j]/port - node_num;
-                        output_port = current_pair.channels[j]%port;
-                        input_port = current_pair.channels[j-1]%port;
+                        target_sw = current_pair.channels[j]/PORT - node_num;
+                        output_port = current_pair.channels[j]%PORT;
+                        input_port = current_pair.channels[j-1]%PORT;
                         if (input_port != 0){ // down --> down
                                 input_port = 0; 
                         }
                         else{
                                 if (output_port != 0){ // up --> down 
-                                        input_port = (current_pair.channels[j-1]/port)%Host_Num + 1;
+                                        input_port = (current_pair.channels[j-1]/PORT)%Host_Num + 1;
                                 }
                                 else{ // up --> up
-                                        input_port = (current_pair.channels[j-1]/port)%Host_Num + 1;
+                                        input_port = (current_pair.channels[j-1]/PORT)%Host_Num + 1;
                                 }
                         }
                         if (j == 1){
@@ -509,10 +513,10 @@ bool path_based, int port)
         else{
                 slots = max_cp_dst;
         }
-        outputfile << port << " " << slots << endl;  // number of output ports, number of slots
+        outputfile << PORT << " " << slots << endl;  // number of output ports, number of slots
 
         bool slot_occupied = false;
-        for (int op=0; op < port; op++){
+        for (int op=0; op < PORT; op++){
                 if (op < 10 && op > -1){
                         outputfile << "0" << op << endl;
                 }
@@ -520,9 +524,9 @@ bool path_based, int port)
                         outputfile << op << endl;
                 }  
                 for (int s=0; s < slots; s++){
-                        for (int j=0; j < Crossing_Paths[port*(i+node_num)+op].routing_table.size(); j=j+4){ //i+node_num --> sw #
-                                if (Crossing_Paths[port*(i+node_num)+op].routing_table[j+1] == s){  // j+1 --> slot number
-                                        outputfile << Crossing_Paths[port*(i+node_num)+op].routing_table[j] << " "; // j --> input port
+                        for (int j=0; j < Crossing_Paths[PORT*(i+node_num)+op].routing_table.size(); j=j+4){ //i+node_num --> sw #
+                                if (Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+1] == s){  // j+1 --> slot number
+                                        outputfile << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j] << " "; // j --> input port
                                         slot_occupied = true;
                                 }  
                         }        
@@ -557,17 +561,15 @@ int main(int argc, char *argv[])
    static bool path_based = true; //false:destination_based, true:path_based
    static int degree = 4; // degree = 2 * dimension
    static int dimension = 2; //mesh or torus
-
-   static int port = Host_Num + 1; //fat-tree
    
    while((c = getopt(argc, argv, "a:A:n:T:dD:")) != -1) {
       switch (c) {
       case 'a':
 	 array_size = atoi(optarg);
 	 break;
-      /* case 'A':
+        /*case 'A':
 	 Allocation = atoi(optarg);	
-	 break; */
+	 break;*/
 	/*  case 'v':
 	 Vch = atoi(optarg);	
 	 break; */
@@ -613,6 +615,7 @@ int main(int argc, char *argv[])
    // number of nodes
    static int switch_num = pow(array_size,dimension); //mesh or torus
    static int node_num = pow(array_size,dimension); //fat-tree
+   static int PORT = Host_Num + 1; //fat-tree
    // Crossing Paths
    // including Host <-> Switch
 
@@ -621,7 +624,7 @@ int main(int argc, char *argv[])
         ports = (degree+1+2*Host_Num)*switch_num*Vch;
    }
    if (Topology == 2){ //fat-tree
-        ports = port * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)+1);
+        ports = PORT * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)+1);
    }
    vector<Cross_Paths> Crossing_Paths(ports);
 
@@ -1129,35 +1132,36 @@ int main(int argc, char *argv[])
         // channel --> switch ID + output port
         Pair tmp_pair(src,dst,h_src,h_dst);  
         pairs.push_back(tmp_pair);
-        Crossing_Paths[current*port].pair_index.push_back(ct);
-        pairs[ct].channels.push_back(current*port);
+        Crossing_Paths[current*PORT].pair_index.push_back(ct);
+        pairs[ct].channels.push_back(current*PORT);
         //hops++;
 
         pairs[ct].pair_id = ct; 
         
         current = node_num + current/Host_Num;
+
         while ( current != dst ){ 
                 int t;
                 // root switch
                 if ( current == node_num + node_num/Host_Num + node_num/pow(Host_Num,2)){
-                t = current * port + dst/(int)pow(Host_Num,2)+1;
+                t = current * PORT + dst/(int)pow(Host_Num,2)+1;
                 current = current - Host_Num + dst/(int)pow(Host_Num,2);
                 // middle layer switch
                 } else if ( current >= node_num + node_num/Host_Num){
                 if ( current-node_num-node_num/Host_Num != dst/(int)pow(Host_Num,2)){
-                t = current * port + 0;
+                t = current * PORT + 0;
                 current = node_num + node_num/Host_Num + node_num/(int)pow(Host_Num,2);
                 } else {
-                t = current * port + (dst/Host_Num)%Host_Num + 1;
+                t = current * PORT + (dst/Host_Num)%Host_Num + 1;
                 current = node_num + dst/Host_Num;
                 }
                 // low layer switch
                 } else if ( current >= node_num){
                 if ( current-node_num != dst/Host_Num){
-                t = current * port + 0;
+                t = current * PORT + 0;
                 current = node_num + current/Host_Num;
                 } else {
-                t = current * port + dst%Host_Num+1;
+                t = current * PORT + dst%Host_Num+1;
                 current = dst;
                 }
                 }
@@ -1322,7 +1326,7 @@ int main(int argc, char *argv[])
         cout << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
         cout << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
 
-        for (int j = 0; j <= port * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)); j++ ){ 
+        for (int j = 0; j <= PORT * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)); j++ ){ 
         vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
                 switch (Allocation){
                 // low port first
@@ -1389,7 +1393,7 @@ int main(int argc, char *argv[])
         }
         elem->Valid = true;
         }      
-        show_paths_tree(Crossing_Paths, ct, node_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, port);
+        show_paths_tree(Crossing_Paths, ct, node_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, PORT);
    } 
    return 0;
 }
