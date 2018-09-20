@@ -607,8 +607,14 @@ int main(int argc, char *argv[])
 
    //cout << " ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
    //cout << " Address method is 0(destination_based) / 1(path_based): " 
-   cout << " ### start ###" << endl << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): "
-	<<  path_based << " (Use -d to deactivate the update) " << endl;
+   cout << " ### start ###" << endl;
+   cout << " === topology ===" << endl;
+   if (Topology == 0) cout << dimension << "-D mesh (" << switch_num << " switches/nodes)";
+   else if (Topology == 1) cout << dimension << "-D torus (" << switch_num << " switches/nodes)";
+   else if (Topology == 2) cout << "fat tree (" << node_num << " nodes + " << node_num/Host_Num+node_num/(int)pow(Host_Num,2)+1 << " switches)";
+   else if (Topology == 3) cout << "fully connected (" << switch_num << " switches/nodes)";
+   else cout << "Error: please specify -T [0-3] (0 mesh, 1 torus, 2 fat tree, 3 fully connected)";
+   cout << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): " <<  path_based << " (Use -d to deactivate the update) " << endl;
    
    // source and destination		
    int src = -1, dst = -1, h_src = -1, h_dst = -1;
