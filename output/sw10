@@ -1,6 +1,6 @@
 16 1
 00
-3 
+void
 01
 void
 02
@@ -20,7 +20,7 @@ void
 09
 void
 10
-void
+6 
 11
 void
 12
