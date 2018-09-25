@@ -1,6 +1,36 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
 ## Source Files
+### Makefile
+This file produces two executable files:
+* tpg.out
+
+    traffic pattern generator (see details in traffic-pattern-generator.cc)
+
+* cst.out
+
+    circuit switch table (see details in circuit-switch-table.cc)
+
+Usage: 
+> cat ./tpg.out -t $traffic_pattern -n $node_num | ./cst.out -T $topology -a $node_num
+
+Other parameters:
+* mesh (-T 0)
+
+    -D [1-4]  --> dimension
+
+* torus (-T 1)
+
+    -D [1-4]  --> dimension
+
+* fat-tree (-T 2)
+    
+    -n $host_num  --> number of hosts for each switch
+
+* fully-connected (-T 3)
+
+    no others
+    
 ### circuit-switch-table.cc
 * This file estimates # of slots and generates routing table for each switch.
 * It supports 
