@@ -109,13 +109,13 @@ bool path_based, int degree)
  	 ID_array.push_back(pairs[t].ID);
 
          if (i%(degree+1+2*Host_Num) == degree+1+2*Host_Num -2 ){
-                 cout << "      Port 0 (from localhost) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;
+                 cout << "      Port 0 (from localhost) --> Pair ID " << pairs[t].pair_id << " (slot num " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;
          }
          else if (i%(degree+1+2*Host_Num) == degree+1+2*Host_Num -1 ){
-                 cout << "      Port 0 (to localhost) --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;
+                 cout << "      Port 0 (to localhost) --> Pair ID " << pairs[t].pair_id << " (slot num " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl;
          }
          else {
-                 cout << "      Port " << i%(degree+1+2*Host_Num) << " --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl; 
+                 cout << "      Port " << i%(degree+1+2*Host_Num) << " --> Pair ID " << pairs[t].pair_id << " (slot num " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl; 
          }
          
       }
@@ -128,7 +128,7 @@ bool path_based, int degree)
 	 	k++;
       }
       if (error){
-	 cout << " ERROR : ID collision is occured!!." << endl;      
+	 cout << " ERROR : Slot number (ID) collision is occured!!." << endl;      
 	 exit (1);
       }
    }
@@ -189,7 +189,7 @@ bool path_based, int degree)
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
-            cout << " Pair ID " << current_pair.pair_id << " (local ID " << slot_num << "): ";
+            cout << " Pair ID " << current_pair.pair_id << " (slot num " << slot_num << "): ";
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = 0;
@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
    //cout << " ID Allocation Policy is 0(low port first) / 1(Crossing Paths based method): " << Allocation << endl;
    //cout << " Address method is 0(destination_based) / 1(path_based): " 
    cout << " ### start ###" << endl;
-   cout << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): " <<  path_based << " (Use -d to deactivate the update) " << endl;
+   cout << " === Update of slot number ===" << endl << " 0 (no) / 1 (yes): " <<  path_based << " (Use -u to deactivate the update) " << endl;
    
    // source and destination		
    int src = -1, dst = -1, h_src = -1, h_dst = -1;
