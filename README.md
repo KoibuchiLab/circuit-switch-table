@@ -14,7 +14,7 @@ This repo contains the work on circuit-switched network, including estimating # 
      fully-connected (-T 3) 
 
    as the host interconnection network (-a).
-* It defaultly supports the update of slot # during slot ID allocation (add -d to deactivate the update).
+* It defaultly does NOT support the update of slot # during slot ID allocation (add -u to activate the update).
 * The generated routing tables for corresponding switches are saved in output/, which is refreshed (NOT appended!) after each execution.
 * Switch Number (2-D): as follows.
 
