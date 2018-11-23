@@ -1,5 +1,21 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
+## 2018/11/24 update
+### Adds
+* Support the topology of Full mesh Connected Circles (FCC)
+* In FCC, switches in a group are connected by a ring (a mesh if it has 4 switches)
+### Parameters
+* -T 4 (FCC)
+* -d (defaultly 8, which is divided into 6 inter-group connections and 2 intra-group connections)
+* -m (number of switches in a group, defaultly 4)
+### Switch-switch
+* switch offset 0,1,2,3 in group A is connected to switch offset 3,2,1,0 in group B respectively
+### Port
+* When d = 8, host: 0, intra-group backward: 1, intra-group forward: 2, inter-group: 3-8
+* Port 3-8 of a switch (0,1,2,3) in group A is connected to port 8-3 of a switch (3,2,1,0) in group B
+### Usage
+* FCC topology, uniform traffic pattern, d = 8, m = 4, switches are ((d-2)*m+1)*m = 100
+> ./tpg.out -t 0 -a 10 | ./cst.out -T 4 -d 8 -m 4
 ## Source Files
 ### Makefile
 This file produces two executable files:
@@ -12,7 +28,7 @@ This file produces two executable files:
     circuit switch table (see details in circuit-switch-table.cc)
 
 Usage: 
-> cat ./tpg.out -t $traffic_pattern -n $node_num | ./cst.out -T $topology -a $node_num
+> ./tpg.out -t $traffic_pattern -a $node_num | ./cst.out -T $topology -a $node_num
 
 Other parameters:
 * mesh (-T 0)
