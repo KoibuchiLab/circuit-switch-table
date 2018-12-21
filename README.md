@@ -68,7 +68,7 @@ Other parameters:
 <img src="fig/2dmesh.png" width=512 height=512 />  
 </div>
 
-* Switch Port Number (2-D): East 0, West 1, South 2, North 3.
+* Switch Port Number (2-D): Localhost 0, East 1, West 2, South 3, North 4.
 
 <div align=center>
 <img src="fig/sw-port-2d-rev.png" width=512 height=512 />
@@ -100,7 +100,7 @@ Other parameters:
 <img src="fig/3dmesh.png" width=512 height=512 />
 </div>
 
-* Switch Port Number (3-D): East 0, West 1, South 2, North 3, back 4, front 5.
+* Switch Port Number (3-D): Localhost 0, East 1, West 2, South 3, North 4, back 5, front 6.
 
 <div align=center>
 <img src="fig/sw-port-3d-rev.png" width=512 height=512 />
