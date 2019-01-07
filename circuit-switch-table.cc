@@ -2,7 +2,7 @@
 // circuit-switch-table.cc
 //
 // mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)
-// Usage: cat test.txt | ./circuit-switch-table.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
+// Usage: cat test.txt | ./cst.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
 //
 // % less test.txt
 // 3  4    <--- path from node 3 to node 4
