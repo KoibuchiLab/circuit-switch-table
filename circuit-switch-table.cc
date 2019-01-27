@@ -8,7 +8,7 @@
 // 3  4    <--- path from node 3 to node 4
 // 2  4 
 //
-// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./circuit-switch-table.out -D 2 -a 4 -T 0 
+// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./cst.out -D 2 -a 4 -T 0 
 //
 // Wed Sep 06 19:24:42 JST 2018 huyao@nii.ac.jp
 //
@@ -978,6 +978,350 @@ bool path_based, int degree, int default_slot)
     cout << " ### OVER ###" << endl;
 }
 
+//
+// output and error check (topology file)
+//  
+void show_paths_tf (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
+int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
+bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, int default_slot)
+{
+   // for each channel
+   //cout << " === Port information for each switch === " << endl;
+   for (int i=0; i < ((switch_num-1)+1+2*Host_Num)*switch_num; i++){
+      vector<int> ID_array(Crossing_Paths[i].pair_index.size(),-1);
+//      cout << " Channels (" << i << ")" << endl;
+      //if (i%(degree+1+2*Host_Num) == 0) cout << " SW " << i/(degree+1+2*Host_Num) << " : " << endl;
+// for each node pair passing through a channel
+      for (unsigned int j=0; j < Crossing_Paths[i].pair_index.size(); j++){
+	 int t = Crossing_Paths[i].pair_index[j];
+//	 cout << " channel from " << pairs[t].src << " to " << pairs[t].dst << " is assigned to the ID " << pairs[t].ID << endl;
+ 	 ID_array.push_back(pairs[t].ID);
+
+         //if ( (i%(degree+1+2*Host_Num) != degree+1+2*Host_Num -2) && (i%(degree+1+2*Host_Num) != degree+1+2*Host_Num -1) ) { // -2 and -1 --> no meaning
+         //        cout << "      Port " << i%(degree+1+2*Host_Num) << " --> Pair ID " << pairs[t].pair_id << " (local ID " << pairs[t].ID << "), from node " << pairs[t].h_src << " to node " << pairs[t].h_dst << endl; 
+         //}
+      }
+      sort ( ID_array.begin(), ID_array.end() );
+      unsigned int k = 0;
+      bool error = false;
+      while ( k+1 < ID_array.size() && !error){
+	 if ( ID_array[k] == ID_array[k+1] && ID_array[k] != -1 && path_based)
+	    error = true;
+	 	k++;
+      }
+      if (error){
+	 cout << " ERROR : Slot # collision is occured!!." << endl;      
+	 exit (1);
+      }
+   }
+
+   // output
+   vector<Cross_Paths>::iterator elem = Crossing_Paths.begin();
+   int port = 0;
+   //int slots = 0; 
+   //int pointer = 0; 
+   //int total_slots = 0; 
+
+        cout << " === Number of slots === " << endl;
+        //cout << " East, West, South, North, (Back, Front, ...) Out, In " << endl;
+        cout << " SW0, SW1, SW2, SW3, SW4, ... " << endl;
+
+        cout << " SW " << setw(2) << port/((switch_num-1)+1+2*Host_Num) << ":  ";    while ( elem != Crossing_Paths.end() ){
+      if (port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num && port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num-1) cout << " " << (*elem).pair_index.size();
+      //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} 
+
+      //if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1)  total_slots += (*elem).pair_index.size();
+
+      elem ++; port++;
+      if ( port%((switch_num-1)+1+2*Host_Num) == 0){
+         //pointer = 0; 
+	 cout << endl;		
+	 if ( port != ((switch_num-1)+1+2*Host_Num)*switch_num)
+	    cout << " SW " << setw(2) << port/((switch_num-1)+1+2*Host_Num) << ":  ";	
+      }
+   }
+	//cout << endl; 
+	// setting for comparing (maximum) Cross_Path 
+        vector<Cross_Paths>::iterator pt = Crossing_Paths.begin();
+	while ( pt != Crossing_Paths.end() ){
+    	(*pt).Valid = true;
+        ++pt;
+	}
+
+   //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
+   //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
+   cout << " === The number of paths on this application ===" << endl << ct << " (all-to-all cases: " << (switch_num*Host_Num)*(switch_num*Host_Num-1) << ")" << endl;
+   cout << " === The average hops ===" << endl << setiosflags(ios::fixed | ios::showpoint) << (float)hops/ct << endl;
+   //cout << " ID size(without ID modification)" << max_id << endl;
+   //cout << " (Maximum) number of slots: " << slots;
+
+   // routing table file output for each sw   
+   int target_sw; // switch file to be written, sw0, sw1, ...
+   int input_port; // of target_sw
+   int output_port; // of target_sw
+   int slot_num; // assigned slot number for a node pair
+   system("rm output/sw*");  // delete previous output results
+   cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
+    for (int i=0; i < pairs.size(); i++){
+            Pair current_pair = pairs[i];
+            slot_num = current_pair.ID;
+            //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
+            cout << " Pair ID " << current_pair.pair_id << ": " << endl;
+
+            int src_index = -1;
+            int dst_index = -1;
+            for (int i = 0; i < switch_num; i++){
+                if (topo_sws_uni[i] == current_pair.src){
+                        src_index = i;
+                }
+                if (topo_sws_uni[i] == current_pair.dst){
+                        dst_index = i;
+                } 
+                if (src_index != -1 && dst_index != -1) break;               
+            }
+            if (src_index == -1 || dst_index == -1) cout << "Error: src/dst number is wrong" << endl;   
+
+            for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
+                    target_sw = -1;
+                    input_port = 0;
+                    output_port = 0;
+                    if (j == 1){ // source switch
+                            target_sw = current_pair.src;
+                            //output_port = Switch_Topo[src_index*((switch_num-1)+1+2*Host_Num)+current_pair.channels[j]%((switch_num-1)+1+2*Host_Num)];
+                            output_port = Switch_Topo[current_pair.channels[j]];
+                            //cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
+                            cout << "   SW " << target_sw << " (port " << input_port << "->" << output_port << ")" << " - [slot " << slot_num << "] -> ";
+                    }
+                    else if (j == current_pair.channels.size()-1){ // destination switch
+                            target_sw = current_pair.dst;
+                            input_port = Switch_Topo[current_pair.channels[j-1]];
+                            //cout << "SW " << target_sw;
+                            cout << "SW " << target_sw << " (port " << input_port << "->" << output_port << ")";
+                    }
+                    else{
+                            target_sw = current_pair.channels[j]/((switch_num-1)+1+2*Host_Num);
+                            output_port = Switch_Topo[current_pair.channels[j]];
+                            input_port = Switch_Topo[current_pair.channels[j-1]];
+                            //cout << "SW " << target_sw << " (port " << output_port << ")" << " --> ";
+                            cout << "SW " << target_sw << " (port " << input_port << "->" << output_port << ")" << " - [slot " << slot_num << "] -> ";
+                    }
+                //     char filename[100]; 
+                //     sprintf(filename, "output/sw%d", target_sw); // save to output/ 
+                //     char* fn = filename;
+                //     ofstream outputfile(fn, ios::app); // iostream append
+                //     stringstream ss_op;  // output port
+                //     stringstream ss_ip;  // input port
+                //     stringstream ss_sn;  // slot number
+                //     output_port_s = "";
+                //     input_port_s = "";
+                //     slot_num_s = "";
+                //     if (output_port < 10 && output_port > -1){
+                //             ss_op << "0" << output_port;
+                //             output_port_s = ss_op.str();
+                //     }
+                //     else{
+                //             ss_op << output_port;
+                //             output_port_s = ss_op.str();
+                //     }
+                //     if (input_port < 10 && input_port > -1){
+                //             ss_ip << "0" << input_port;
+                //             input_port_s = ss_ip.str();
+                //     }
+                //     else{
+                //             ss_ip << input_port;
+                //             input_port_s = ss_ip.str();
+                //     }
+                //     if (slot_num < 10 && slot_num > -1){
+                //             ss_sn << "0" << slot_num;
+                //             slot_num_s = ss_sn.str();
+                //     }
+                //     else{
+                //             ss_sn << slot_num;
+                //             slot_num_s = ss_sn.str();
+                //     }
+                //     outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
+                //     outputfile.close();
+
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+
+            }
+            cout << endl;
+    }
+
+   cout << " === Port information for each switch === " << endl;
+   for (int i=0; i < switch_num; i++){
+        cout << " SW " << topo_sws_uni[i] << " : " << endl;
+        char filename[100]; 
+        sprintf(filename, "output/sw%d", topo_sws_uni[i]); // save to output/ 
+        char* fn = filename;
+        ofstream outputfile(fn, ios::app); // iostream append   
+        int slots;
+        if (path_based == true){
+                slots = max_cp;
+        } 
+        else{
+                slots = max_cp_dst;
+        }
+        if (slots > default_slot){
+                cout << " ERROR : Slot # (" << slots << ") is larger than the default slot " << default_slot << endl;      
+                exit (1);
+        }
+        outputfile << degree+1 << " " << default_slot << endl;  // number of output ports, number of slots
+        outputfile << "0000" << endl;  // output 00 --> localhost
+        bool slot_occupied = false;
+        for (int s=0; s < slots; s++){
+                if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size() > 0){
+                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size(); j=j+4){
+                                if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
+                                        outputfile << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j] << " ";
+                                        slot_occupied = true;
+                                        cout << "      Port " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j] << " (Slot " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+1] << ") --> Port 0 (Slot " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+1] << "), from node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+2] << " to node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+3] << endl; // j+2 --> src node, j+3 --> dst node
+                                }  
+                        }        
+                }
+                if (slot_occupied == false){
+                        outputfile << "void";
+                }
+                outputfile << endl;   
+                slot_occupied = false;             
+        }
+        for (int s=0; s<default_slot-slots; s++) outputfile << "void" << endl; 
+
+        for (int op=0; op < (switch_num-1)+1; op++){ 
+                int out_port = Switch_Topo[((switch_num-1)+1+2*Host_Num)*i+op];
+                if (out_port != -1){
+                        if (out_port < 10 && out_port > -1){
+                                outputfile << "0" << out_port << "00" << endl;
+                        }
+                        else{
+                                outputfile << out_port << "00" << endl;
+                        }
+                        for (int s=0; s < slots; s++){
+                                if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size() > 0){
+                                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                                if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
+                                                        outputfile << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
+                                                        slot_occupied = true;
+                                                        cout << "      Port " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j] << " (Slot " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+1] << ") --> Port " << op << " (Slot " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+1] << "), from node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+2] << " to node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+3] << endl; // j+2 --> src node, j+3 --> dst node
+                                                }  
+                                        } 
+                                }
+                                if (slot_occupied == false){
+                                        outputfile << "void";
+                                }
+                                outputfile << endl;   
+                                slot_occupied = false;                         
+                        }
+                        for (int s=0; s<default_slot-slots; s++) outputfile << "void" << endl;  
+                } 
+        }
+
+        outputfile.close();
+   }
+    cout << " !!! Routing tables for each sw are saved to output/ !!!" << endl;
+    cout << " ### OVER ###" << endl;
+}
+
+// ########################################## //
+// ##  C program for Dijkstra's single source shortest path algorithm. 
+// ##  The program is for adjacency matrix representation of the graph. ## //
+// ##  Modified based on https://www.geeksforgeeks.org/printing-paths-dijkstras-shortest-path-algorithm/  ## //
+// ########################################## //
+
+// A utility function to find the vertex with minimum distance value, from the set of vertices not yet included in shortest path tree 
+int minDistance(int dist[], bool sptSet[], int V) 
+{    
+    // Initialize min value 
+    int min = 10000, min_index; 
+  
+    for (int v = 0; v < V; v++) 
+        if (sptSet[v] == false && dist[v] <= min) {
+                min = dist[v]; 
+                min_index = v; 
+        }
+        
+    return min_index; 
+} 
+
+// Function to print shortest path from source to j using parent array 
+void printPath(int parent[], int j, int src, int dst, vector< vector<int> > &pair_path, int V) 
+{ 
+    // Base Case : If j is source 
+    if (parent[j] == -1) 
+        return; 
+  
+    printPath(parent, parent[j], src, dst, pair_path, V); 
+  
+    //printf("%d ", j); 
+    pair_path[src*V+dst].push_back(j);
+} 
+
+// A utility function to print the constructed distance array 
+int printSolution(int dist[], int V, int parent[], int src, vector< vector<int> > &pair_path) 
+{ 
+    //int src = 0; 
+    //printf("Vertex\t Distance\tPath"); 
+    for (int i = 0; i < V; i++) 
+    { 
+        if (i != src) {
+                //printf("\n%d -> %d \t\t %d\t\t%d ", src, i, dist[i], src); 
+                int dst = i;
+                printPath(parent, i, src, dst, pair_path, V); 
+        }
+    } 
+}
+
+// Funtion that implements Dijkstra's single source shortest path algorithm for a graph represented using adjacency matrix representation 
+void dijkstra(int V, vector<int> graph, int src, vector< vector<int> > &pair_path) 
+{ 
+      
+    // The output array. dist[i] will hold the shortest distance from src to i 
+    int dist[V];  
+  
+    // sptSet[i] will true if vertex i is included / in shortest path tree or shortest distance from src to i is finalized 
+    bool sptSet[V]; 
+  
+    // Parent array to store shortest path tree 
+    int parent[V]; 
+  
+    // Initialize all distances as INFINITE and stpSet[] as false 
+    for (int i = 0; i < V; i++) 
+    { 
+        parent[i] = -1; 
+        dist[i] = 10000; 
+        sptSet[i] = false; 
+    } 
+  
+    // Distance of source vertex from itself is always 0 
+    dist[src] = 0; 
+  
+    // Find shortest path for all vertices 
+    for (int count = 0; count < V - 1; count++) 
+    { 
+        // Pick the minimum distance vertex from the set of vertices not yet processed. u is always equal to src in first iteration. 
+        int u = minDistance(dist, sptSet, V); 
+  
+        // Mark the picked vertex as processed 
+        sptSet[u] = true; 
+  
+        // Update dist value of the adjacent vertices of the picked vertex. 
+        for (int v = 0; v < V; v++) 
+  
+            // Update dist[v] only if is not in sptSet, there is an edge from u to v, and total weight of path from src to v through u is smaller than current value of dist[v] 
+            if (!sptSet[v] && graph[u*V+v] && dist[u] + graph[u*V+v] < dist[v]) 
+            { 
+                parent[v] = u; 
+                dist[v] = dist[u] + graph[u*V+v]; 
+            }  
+    } 
+  
+    // print the constructed distance array 
+    printSolution(dist, V, parent, src, pair_path); 
+}
+
 // 
 // Detect crossing_paths of ecube routing on fat-tree.
 //
@@ -991,7 +1335,7 @@ int main(int argc, char *argv[])
    static int Host_Num = 1;
    // The number of VCHs
    static int Vch = 1; // Mesh:1, Torus:2-->1
-   static int Topology = 0; // Mesh:0, Torus:1, Fat-tree:2, fully-connected:3, full-mesh-connected-circles(fcc):4
+   static int Topology = 0; // Mesh:0, Torus:1, Fat-tree:2, fully-connected:3, full-mesh-connected-circles(fcc):4, topology-file:5
    int c;
    static bool path_based = false; //false:destination_based (slot # not updated), true:path_based (slot # updated)
    static int degree = 4; // (mesh or torus) degree = 2 * dimension, (fully-connected) degree = switch_num -1, (fcc) degree = inter-group + intra-group (2 for ring)
@@ -1000,8 +1344,10 @@ int main(int argc, char *argv[])
    static int group_switch_num = 4; //fcc
    static int inter_group = 6; //fcc
    static int intra_group = 2; //fcc
+
+   static char* topology_file; // topology file
    
-   while((c = getopt(argc, argv, "a:A:n:T:uD:d:m:")) != -1) {
+   while((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:")) != -1) {
       switch (c) {
       case 'a':
 	 array_size = atoi(optarg);
@@ -1029,7 +1375,10 @@ int main(int argc, char *argv[])
 	 break;      
       case 'm': //fcc # of switches in one group
          group_switch_num = atoi(optarg);
-	 break;              
+	 break;   
+      case 't': //topology file (Topology = 5)
+         topology_file = optarg;
+	 break;               
       default:
 	 //usage(argv[0]);
 	 cout << " This option is not supported. " << endl;
@@ -1037,8 +1386,8 @@ int main(int argc, char *argv[])
       }
    }
 
-   if (dimension > 4 || dimension < 1){
-        cerr << " Please input -D $dimension (1 <= $dimension <= 4)" << endl;
+   if (dimension > 5 || dimension < 1){
+        cerr << " Please input -D $dimension (1 <= $dimension <= 5)" << endl;
         exit (1);   
    }
 
@@ -1080,6 +1429,54 @@ int main(int argc, char *argv[])
         node_num = switch_num*Host_Num; //100
    }
 
+   //topology loaded and analyzed when Topology == 5 (topology file)
+   vector<int> topo_file;
+   vector<int> topo_sws_dup; // duplicate
+   vector<int> topo_sws_uni; // unique
+   if (Topology == 5){ // topology file
+        ifstream infile_feat(topology_file);
+        string line_data;
+        int data;
+        while (!infile_feat.eof()){
+                getline(infile_feat, line_data);
+                stringstream stringin(line_data);
+                int column = 0;
+                while (stringin >> data){
+                        if (column == 0){ // src_sw
+                                topo_file.push_back(data);
+                                topo_sws_dup.push_back(data);
+                                topo_sws_uni.push_back(data);
+                                column++;
+                        }
+                        else if (column == 1){ // src_port
+                                topo_file.push_back(data);    
+                                column++;                           
+                        }
+                        else if (column == 2){ // dst_sw
+                                topo_file.push_back(data); 
+                                topo_sws_dup.push_back(data);
+                                topo_sws_uni.push_back(data);  
+                                column++;                                                           
+                        }
+                        else if (column == 3){ // dst_port
+                                topo_file.push_back(data);   
+                                column++;                            
+                        }                                                
+                }
+        }
+        infile_feat.close();
+
+        sort(topo_sws_uni.begin(), topo_sws_uni.end());
+        topo_sws_uni.erase(unique(topo_sws_uni.begin(), topo_sws_uni.end()), topo_sws_uni.end());
+        switch_num = topo_sws_uni.size();
+        degree = 0;
+        int cnt;
+        for (int i=0; i<switch_num; i++){
+                cnt = count(topo_sws_dup.begin(), topo_sws_dup.end(), topo_sws_uni[i]);
+                if (cnt > degree) degree = cnt;
+        }   
+   }
+
    static int ports;
    if (Topology == 0 || Topology == 1){ //mesh or torus
         ports = (degree+1+2*Host_Num)*switch_num*Vch;
@@ -1092,11 +1489,15 @@ int main(int argc, char *argv[])
    }
    if (Topology == 4){ //fcc
         ports = (degree+1+2*Host_Num)*switch_num; // 11*100=1100 localhost port = 0
-   }   
+   }
+   if (Topology == 5){ //topology file
+        ports = ((switch_num-1)+1+2*Host_Num)*switch_num;
+   }      
    vector<Cross_Paths> Crossing_Paths(ports);
 
    // switch connection initiation (fcc)
    // 0:not used, 1:left, 2:right, 3-8:inter-group
+   // sw-port (topology file)
    vector<int> Switch_Topo(ports);
 
    // total number of node pairs
@@ -1117,7 +1518,8 @@ int main(int argc, char *argv[])
         else cout << "fat tree (" << node_num << " nodes + " << node_num/Host_Num+node_num/(int)pow(Host_Num,2)+1 << " switches)" << endl;
    else if (Topology == 3) cout << "fully connected (" << switch_num << " switches/nodes)" << endl;
    else if (Topology == 4) cout << "full mesh connected circles (" << switch_num << " switches / "<< node_num << " nodes, " << groups << " groups, " << group_switch_num << " switches/group, degree = " << degree << ")" << endl;
-   else cout << "Error: please specify -T [0-3] (0 mesh, 1 torus, 2 fat tree, 3 fully connected, 4 full mesh connected circles)" << endl;
+   else if (Topology == 5) cout << "topology file (" << switch_num << " switches)" << endl;
+   else cout << "Error: please specify -T [0-5] (0 mesh, 1 torus, 2 fat tree, 3 fully connected, 4 full mesh connected circles, 5 topology file)" << endl;
 
    // ########################################## //
    // ##############   PHASE 1   ############### //
@@ -1883,7 +2285,107 @@ int main(int argc, char *argv[])
 
         }
    }
-	
+
+   if (Topology == 5){ // topology file
+        
+        // switch topo initiation (sw-port)
+        // 0 - (switch_num-1) --> port (except itself); switch_num, (switch_num+1) --> not used
+        for (int i=0; i<Switch_Topo.size(); i++){
+                Switch_Topo[i] = -1;
+        }
+        for (int i=0; i<switch_num; i++){
+                for (int j=0; j<topo_file.size(); j=j+2){
+                        if (topo_sws_uni[i] == topo_file[j]){
+                                int connect_sw = -1;
+                                int connect_port = -1;
+                                if (j%4 == 0){
+                                        connect_sw = topo_file[j+2];
+                                        connect_port = topo_file[j+1];
+                                }
+                                else if (j%4 == 2){
+                                        connect_sw = topo_file[j-2];
+                                        connect_port = topo_file[j+1];
+                                }
+                                for (int k=0; k<switch_num; k++){
+                                        if (topo_sws_uni[k] == connect_sw){
+                                                Switch_Topo[i*((switch_num-1)+1+2*Host_Num)+k] = connect_port;
+                                        }
+                                }
+                        }
+                }
+        }
+
+        // Number of vertices in the graph 
+        int V = switch_num;
+
+        // graph initialization
+        vector<int> graph(V*V);
+        for (int i=0; i<graph.size(); i++){
+                if (Switch_Topo[(i/V)*((switch_num-1)+1+2*Host_Num)+i%V] == -1){
+                        graph[i] = 0;
+                }
+                else {
+                        graph[i] = 1;
+                }
+        }
+
+        // dijkstra for each pair
+        vector< vector<int> > pair_path(V*V);
+        for (int i=0; i<V; i++){
+                 dijkstra(V, graph, i, pair_path); 
+        } 
+
+        while ( cin >> h_src){	
+                cin >> h_dst;
+                src = h_src/Host_Num;
+                dst = h_dst/Host_Num;    
+
+        // channel <-- node pair ID, node pair <-- channel ID 
+        Pair tmp_pair(src,dst,h_src,h_dst);  
+        pairs.push_back(tmp_pair);
+
+        //pair path
+        int src_index = -1;
+        int dst_index = -1;
+        for (int i = 0; i < switch_num; i++){
+                if (topo_sws_uni[i] == src){
+                        src_index = i;
+                }
+                if (topo_sws_uni[i] == dst){
+                        dst_index = i;
+                } 
+                if (src_index != -1 && dst_index != -1) break;               
+        }
+        if (src_index == -1 || dst_index == -1) cout << "Error: src/dst number is wrong" << endl;
+
+        // localhost(h_src) --> src
+        int t = src_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+h_src%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+        pairs[ct].pair_id = ct; 
+        pairs[ct].hops = pair_path[src_index*V+dst_index].size()+1;
+        hops += pairs[ct].hops;
+
+        // src --> dst
+        for (int i=0; i<pair_path[src_index*V+dst_index].size(); i++){
+                if (i==0){
+                        t = src_index*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
+                }
+                else {
+                        t = pair_path[src_index*V+dst_index][i-1]*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
+                }
+                Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+        }
+
+        // dst --> localhost(h_dst)
+        t = dst_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+Host_Num+h_dst%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        pairs[ct].channels.push_back(t); // node pair <-- channel ID  
+
+        ct++;
+        }
+   }	
 
    // ########################################## //
    // ##############   PHASE 2   ############### //
@@ -1997,6 +2499,9 @@ int main(int argc, char *argv[])
 
    if (Topology == 4) // full mesh connected circles (FCC)
    show_paths_fcc(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot);  
+
+   if (Topology == 5) // topology file
+   show_paths_tf(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, Switch_Topo, topo_sws_uni, default_slot);  
 
    return 0;
 }
