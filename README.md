@@ -10,9 +10,8 @@ This repo contains the work on circuit-switched network, including estimating # 
 * -t [topo-file-name]  
 ### Example of topology file
 SW0 (port2) <--> (port2) SW1 (port1) <--> (port1) SW2
-    
-    0 2 1 2
 
+    0 2 1 2
     1 1 2 1
 
 port0 is retained for localhost
