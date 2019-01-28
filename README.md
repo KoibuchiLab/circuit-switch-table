@@ -8,6 +8,14 @@ This repo contains the work on circuit-switched network, including estimating # 
 ### Parameters
 * -T 5 (customized topology file, must be followed by -t to specify the topology file name)
 * -t [topo-file-name]  
+### Example of topology file
+SW0 (port2) <--> (port2) SW1 (port1) <--> (port1) SW2
+    
+    0 2 1 2
+
+    1 1 2 1
+
+port0 is retained for localhost
 ### Usage
 > cat test-tf.txt | ./cst.out -T 5 -t topo-file.txt
 ## 2018/11/24 update
