@@ -1,5 +1,15 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
+## 2019/01/28 update
+### Adds
+* Support the customized topology file with the specified switch number and port number
+* For each line in the topology file, the format is 
+> Src_SW Src_Port Dst_SW Dst_Port
+### Parameters
+* -T 5 (customized topology file, must be followed by -t to specify the topology file name)
+* -t [topo-file-name]  
+### Usage
+> cat test-tf.txt | ./cst.out -T 5 -t topo-file.txt
 ## 2018/11/24 update
 ### Adds
 * Support the topology of Full mesh Connected Circles (FCC)

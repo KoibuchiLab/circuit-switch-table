@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
    // side length of mesh/torus
    static int array_size = 4;
    // ID Allocation policy
-   static int Allocation = 1; // 0:low port firstï¼Œ 1:Crossing Paths based method
+   static int Allocation = 1; // 0:low port first?¼? 1:Crossing Paths based method
    // number of hosts for each router
    static int Host_Num = 1;
    // The number of VCHs
@@ -1435,13 +1435,17 @@ int main(int argc, char *argv[])
    vector<int> topo_sws_uni; // unique
    if (Topology == 5){ // topology file
         ifstream infile_feat(topology_file);
+        if (!topology_file) {
+                cerr << " Please input -t [topo-file-name] to specify the topology file name." << endl;
+                exit (1);   
+        }
         string line_data;
         int data;
         while (!infile_feat.eof()){
                 getline(infile_feat, line_data);
                 stringstream stringin(line_data);
                 int column = 0;
-                while (stringin >> data){
+                while (stringin >> data){ // src_sw, src_port, dst_sw, dst_port
                         if (column == 0){ // src_sw
                                 topo_file.push_back(data);
                                 topo_sws_dup.push_back(data);
@@ -1497,7 +1501,7 @@ int main(int argc, char *argv[])
 
    // switch connection initiation (fcc)
    // 0:not used, 1:left, 2:right, 3-8:inter-group
-   // sw-port (topology file)
+   // sw-port (topology file), store ports described in topology files
    vector<int> Switch_Topo(ports);
 
    // total number of node pairs
@@ -2288,7 +2292,7 @@ int main(int argc, char *argv[])
 
    if (Topology == 5){ // topology file
         
-        // switch topo initiation (sw-port)
+        // switch topo initiation (sw-port), store ports described in topology files
         // 0 - (switch_num-1) --> port (except itself); switch_num, (switch_num+1) --> not used
         for (int i=0; i<Switch_Topo.size(); i++){
                 Switch_Topo[i] = -1;
@@ -2329,7 +2333,7 @@ int main(int argc, char *argv[])
                 }
         }
 
-        // dijkstra for each pair
+        // dijkstra for each pair, store intermediate and dst sws (not including src sw)
         vector< vector<int> > pair_path(V*V);
         for (int i=0; i<V; i++){
                  dijkstra(V, graph, i, pair_path); 
