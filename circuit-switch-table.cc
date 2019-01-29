@@ -28,6 +28,20 @@
 
 using namespace std;
 
+static  void    usage(char* myname);
+void usage(char* myname)
+{
+	cerr << "usage: " << myname << " [-anTuDdmt]" << endl;
+    cerr << "\t-a<n>\t: Set the array size for -T0,1" << endl;
+ 	cerr << "\t-n<n>\t: Set the number of hosts" << endl;
+    cerr << "\t-T<n>\t: Topology 0:Mesh 1:Torus, 2: Fat Tree, 3: Fully Connected, 4: Dragonfly(FCC)" << endl;
+   	cerr << "\t-u   \t: Allow to update a slot number (at intermediate switch) on a path" << endl;
+    cerr << "\t-D<n>\t: Set degree" << endl;
+    cerr << "\t-d<n>\t: Set degree of group (for -T4)" << endl;
+   	cerr << "\t-m<n>\t: Set the number of switche in a group (for -T4)" << endl;
+    cerr << "\t-t<file name>\t: Topology file (if T = 5" << endl;
+}
+
 //
 // Communication node pair
 //
@@ -1347,7 +1361,7 @@ int main(int argc, char *argv[])
 
    static char* topology_file; // topology file
    
-   while((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:")) != -1) {
+   while((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:h")) != -1) {
       switch (c) {
       case 'a':
 	 array_size = atoi(optarg);
@@ -1379,10 +1393,11 @@ int main(int argc, char *argv[])
       case 't': //topology file (Topology = 5)
          topology_file = optarg;
 	 break;               
-      default:
-	 //usage(argv[0]);
-	 cout << " This option is not supported. " << endl;
-	 return EXIT_FAILURE;
+ 	 case 'h':
+     case '?':
+     default:
+    	usage(argv[0]);
+        return EXIT_FAILURE;
       }
    }
 
