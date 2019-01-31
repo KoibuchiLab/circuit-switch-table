@@ -43,6 +43,17 @@ void usage(char* myname)
 }
 
 //
+// Flow
+//
+struct Flow {   
+   vector<int> pairs_id;
+   // specified flow id
+   int id; 
+   // channels
+   vector<int> channels;
+};
+
+//
 // Communication node pair
 //
 struct Pair {
@@ -81,6 +92,8 @@ struct Pair {
 struct Cross_Paths {
    // Communication node pair index going through a channel
    vector<int> pair_index;
+   // Communication flow index going through a channel
+   vector<int> flow_index;   
    // list of ID in Pair for a channel
    vector<int> assigned_list;
    // list of h_dst in Pair for a channel
@@ -1528,6 +1541,10 @@ int main(int argc, char *argv[])
    // node pairs
    vector<Pair> pairs;
 
+   // flows
+   vector<Flow> flows;
+   int pre_flow_id = -1;
+
    cout << " === topology ===" << endl;
    if (Topology == 0) cout << dimension << "-D mesh (" << switch_num << " switches/nodes)" << endl;
    else if (Topology == 1) cout << dimension << "-D torus (" << switch_num << " switches/nodes)" << endl;
@@ -1578,9 +1595,24 @@ int main(int argc, char *argv[])
         //         Vch*src*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+h_src%Host_Num
         //         : Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+        pairs[ct].channels.push_back(t);  // node pair <-- channel ID   
+
         pairs[ct].pair_id = ct; 
         pairs[ct].flow_id = flowid;
+        if (flowid != pre_flow_id){
+                Flow f;
+                f.id = flowid;
+                f.pairs_id.push_back(ct);
+                flows.push_back(f);
+                pre_flow_id = flowid;                
+        }
+        else if (flowid != -1){
+                flows[flows.size()-1].pairs_id.push_back(ct);
+        }
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }
 
         int delta_x, delta_y, delta_z, delta_a, current, src_xy, dst_xy, src_xyz, dst_xyz; // 2D, 3D, 4D
         if (dimension == 2 || dimension == 1){ //2D, 1D
@@ -1705,6 +1737,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 7;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == array_size-1) { 
                         if ( current >= array_size*array_size*array_size*(array_size-1)) {
                         wrap_around_a = false;
@@ -1720,6 +1756,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 8;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == 0 ) { 
                         if ( current < array_size*array_size*array_size) {
                         wrap_around_a = false;
@@ -1742,6 +1782,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 5;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == array_size-1) { 
                         if ( (current%(array_size*array_size*array_size)) >= array_size*array_size*(array_size-1)) { 
                         wrap_around_z = false;
@@ -1757,6 +1801,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 6;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == 0 ) { 
                         if ( (current%(array_size*array_size*array_size)) < array_size*array_size) {
                         wrap_around_z = false;
@@ -1780,6 +1828,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 1;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == array_size-1) { 
                         wrap_around_x = false;
                         current = current - (array_size -1);
@@ -1794,6 +1846,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 2;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == 0 ) { 
                         wrap_around_x = false;
                         current = current + (array_size - 1);
@@ -1816,6 +1872,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 3;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) >= array_size*(array_size-1) ){ 
                         wrap_around_y = false;
                         current = current - array_size*(array_size -1);
@@ -1830,6 +1890,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 4;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) < array_size ) {
                         wrap_around_y = false;
                         current = current + array_size*(array_size -1);
@@ -1853,6 +1917,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 5;
                         Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == array_size-1) { 
                         if ( current >= array_size*array_size*(array_size-1)) {
                         wrap_around_z = false;
@@ -1868,6 +1936,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 6;
                         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         //if ( current % (array_size*array_size) == 0 ) { 
                         if ( current < array_size*array_size) {
                         wrap_around_z = false;
@@ -1891,6 +1963,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 1;
                         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( (current % (array_size*array_size)) % array_size == array_size-1) { 
                         wrap_around_x = false;
                         current = current - (array_size -1);
@@ -1905,6 +1981,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 2;
                         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( (current % (array_size*array_size)) % array_size == 0 ) { 
                         wrap_around_x = false;
                         current = current + (array_size - 1);
@@ -1928,6 +2008,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 3;
                         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( (current % (array_size*array_size)) >= array_size*(array_size-1) ){ 
                         wrap_around_y = false;
                         current = current - array_size*(array_size -1);
@@ -1942,6 +2026,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 4;
                         Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
                         pairs[ct].channels.push_back(t); // node pair <-- channel ID
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( (current % (array_size*array_size)) < array_size ) { 
                         wrap_around_y = false;
                         current = current + array_size*(array_size -1);
@@ -1967,6 +2055,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 1;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( current % array_size == array_size-1) {
                         wrap_around_x = false;
                         current = current - (array_size -1);
@@ -1981,6 +2073,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 2;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( current % array_size == 0 ) {
                         wrap_around_x = false;
                         current = current + (array_size - 1 );
@@ -2003,6 +2099,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 3;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( current >= array_size*(array_size-1) ){
                         wrap_around_y = false;
                         current = current - array_size*(array_size -1);
@@ -2017,6 +2117,10 @@ int main(int argc, char *argv[])
                         // Vch * current * (degree+1+2*Host_Num) + 4;
                         Crossing_Paths[t].pair_index.push_back(ct); 
                         pairs[ct].channels.push_back(t);
+                        if (flows.size()>0){
+                                flows[flows.size()-1].channels.push_back(t);
+                                Crossing_Paths[t].flow_index.push_back(flowid);
+                        }                        
                         if ( current < array_size ) {
                         wrap_around_y = false;
                         current = current + array_size*(array_size -1);
@@ -2038,7 +2142,11 @@ int main(int argc, char *argv[])
         //                 Vch*dst*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num
         //                 : Vch*dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t); // node pair <-- channel ID     
+        pairs[ct].channels.push_back(t); // node pair <-- channel ID   
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }          
         ct++;	
         }
    }
@@ -2066,11 +2174,25 @@ int main(int argc, char *argv[])
         Pair tmp_pair(src,dst,h_src,h_dst);  
         pairs.push_back(tmp_pair);
         Crossing_Paths[current*PORT].pair_index.push_back(ct);
-        pairs[ct].channels.push_back(current*PORT);
+        pairs[ct].channels.push_back(current*PORT);        
         //hops++;
 
         pairs[ct].pair_id = ct; 
         pairs[ct].flow_id = flowid;
+        if (flowid != pre_flow_id){
+                Flow f;
+                f.id = flowid;
+                f.pairs_id.push_back(ct);
+                flows.push_back(f);
+                pre_flow_id = flowid;                
+        }
+        else if (flowid != -1){
+                flows[flows.size()-1].pairs_id.push_back(ct);
+        } 
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(current*PORT);
+                Crossing_Paths[current*PORT].flow_index.push_back(flowid);
+        }              
         
         current = node_num + current/Host_Num;
 
@@ -2103,6 +2225,10 @@ int main(int argc, char *argv[])
 	        }      
                 Crossing_Paths[t].pair_index.push_back(ct);
                 pairs[ct].channels.push_back(t);
+                if (flows.size()>0){
+                        flows[flows.size()-1].channels.push_back(t);
+                        Crossing_Paths[t].flow_index.push_back(flowid);
+                }                
                 hops++;
         }
 
@@ -2147,11 +2273,25 @@ int main(int argc, char *argv[])
         pairs[ct].pair_id = ct; 
         pairs[ct].hops = 1;
         pairs[ct].flow_id = flowid;
+        if (flowid != pre_flow_id){
+                Flow f;
+                f.id = flowid;
+                f.pairs_id.push_back(ct);
+                flows.push_back(f);
+                pre_flow_id = flowid;                
+        }
+        else if (flowid != -1){
+                flows[flows.size()-1].pairs_id.push_back(ct);
+        }        
 
         // src --> dst
         int t = src * (degree+1+2*Host_Num) + dst; // output port = destination switch ID
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID 
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }           
         hops++;      
 
         // dst --> localhost(h_dst)
@@ -2213,6 +2353,20 @@ int main(int argc, char *argv[])
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
         pairs[ct].flow_id = flowid;
+        if (flowid != pre_flow_id){
+                Flow f;
+                f.id = flowid;
+                f.pairs_id.push_back(ct);
+                flows.push_back(f);
+                pre_flow_id = flowid;                
+        }
+        else if (flowid != -1){
+                flows[flows.size()-1].pairs_id.push_back(ct);
+        }
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }                   
 
         // src --> dst   
         // group #
@@ -2239,6 +2393,10 @@ int main(int argc, char *argv[])
                                 if(current<src_group*group_switch_num) current = current+group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }
@@ -2249,6 +2407,10 @@ int main(int argc, char *argv[])
                                 if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }
@@ -2271,6 +2433,10 @@ int main(int argc, char *argv[])
                                 if(current<src_group*group_switch_num) current = current+group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }
@@ -2281,6 +2447,10 @@ int main(int argc, char *argv[])
                                 if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }
@@ -2290,6 +2460,10 @@ int main(int argc, char *argv[])
                 current = dst_gw;
                 Crossing_Paths[t].pair_index.push_back(ct);
                 pairs[ct].channels.push_back(t);
+                if (flows.size()>0){
+                        flows[flows.size()-1].channels.push_back(t);
+                        Crossing_Paths[t].flow_index.push_back(flowid);
+                }                   
                 hops++;
 
                 //intra-dst-group routing
@@ -2301,6 +2475,10 @@ int main(int argc, char *argv[])
                                 if(current<dst_group*group_switch_num) current = current+group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }
@@ -2311,6 +2489,10 @@ int main(int argc, char *argv[])
                                 if(current>=(dst_group+1)*group_switch_num) current = current-group_switch_num;
                                 Crossing_Paths[t].pair_index.push_back(ct);
                                 pairs[ct].channels.push_back(t);
+                                if (flows.size()>0){
+                                        flows[flows.size()-1].channels.push_back(t);
+                                        Crossing_Paths[t].flow_index.push_back(flowid);
+                                }                                   
                                 hops++;
                         }
                 }                
@@ -2320,6 +2502,10 @@ int main(int argc, char *argv[])
         t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t); // node pair <-- channel ID  
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }           
 
         pairs[ct].hops = hops-before_hops;  
         before_hops = hops;
@@ -2417,6 +2603,21 @@ int main(int argc, char *argv[])
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
         pairs[ct].flow_id = flowid;
+        if (flowid != pre_flow_id){
+                Flow f;
+                f.id = flowid;
+                f.pairs_id.push_back(ct);
+                flows.push_back(f);
+                pre_flow_id = flowid;                
+        }
+        else if (flowid != -1){
+                flows[flows.size()-1].pairs_id.push_back(ct);
+        }
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }           
+
         pairs[ct].hops = pair_path[src_index*V+dst_index].size()+1;
         hops += pairs[ct].hops;
 
@@ -2429,13 +2630,21 @@ int main(int argc, char *argv[])
                         t = pair_path[src_index*V+dst_index][i-1]*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
                 }
                 Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+                pairs[ct].channels.push_back(t);  // node pair <-- channel ID  
+                if (flows.size()>0){
+                        flows[flows.size()-1].channels.push_back(t);
+                        Crossing_Paths[t].flow_index.push_back(flowid);
+                }                      
         }
 
         // dst --> localhost(h_dst)
         t = dst_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+Host_Num+h_dst%Host_Num;
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t); // node pair <-- channel ID  
+        if (flows.size()>0){
+                flows[flows.size()-1].channels.push_back(t);
+                Crossing_Paths[t].flow_index.push_back(flowid);
+        }           
 
         ct++;
         }
