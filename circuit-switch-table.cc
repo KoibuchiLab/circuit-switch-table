@@ -63,7 +63,7 @@ struct Pair {
    int hops;
    // initialize
    Pair(int s, int d, int h_s, int h_d): 
-	src(s),dst(d),h_src(h_s),h_dst(h_d),ID(-1),Valid(false),hops(-1){}
+	src(s),dst(d),h_src(h_s),h_dst(h_d),flow_id(-1),ID(-1),Valid(false),hops(-1){}
 
    bool operator < (Pair &a){
 	 if (Valid == a.Valid)
@@ -1421,6 +1421,9 @@ int main(int argc, char *argv[])
    // source and destination		
    int src = -1, dst = -1, h_src = -1, h_dst = -1;
 
+   // flow id
+   int flowid = -1;
+
    // number of nodes
    static int switch_num = pow(array_size,dimension); //mesh or torus or fully-connected or fcc
    static int node_num = pow(array_size,dimension); //fat-tree or fcc
@@ -1548,6 +1551,12 @@ int main(int argc, char *argv[])
                 src = h_src/Host_Num;
                 dst = h_dst/Host_Num;
 
+        //read flow id
+        char array[20];
+        cin.getline(array, 20);
+        stringstream stringin(array);
+        while (stringin >> flowid){} 
+
         bool wrap_around_x = false;
         bool wrap_around_y = false;
         bool wrap_around_z = false; //3D
@@ -1571,6 +1580,8 @@ int main(int argc, char *argv[])
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
+        pairs[ct].flow_id = flowid;
+
         int delta_x, delta_y, delta_z, delta_a, current, src_xy, dst_xy, src_xyz, dst_xyz; // 2D, 3D, 4D
         if (dimension == 2 || dimension == 1){ //2D, 1D
                 src_xy = src; 
@@ -2041,6 +2052,12 @@ int main(int argc, char *argv[])
         src = h_src;
         dst = h_dst;
 
+        //read flow id
+        char array[20];
+        cin.getline(array, 20);
+        stringstream stringin(array);
+        while (stringin >> flowid){}         
+
         //#######################//
         // switch port:0 UP, 1 DOWN1(or localhost), 2 DOWN2, 3 DOWN3, 4 DOWN4 //
         //#######################//
@@ -2053,6 +2070,7 @@ int main(int argc, char *argv[])
         //hops++;
 
         pairs[ct].pair_id = ct; 
+        pairs[ct].flow_id = flowid;
         
         current = node_num + current/Host_Num;
 
@@ -2107,6 +2125,12 @@ int main(int argc, char *argv[])
                 src = h_src/Host_Num;
                 dst = h_dst/Host_Num;
 
+        //read flow id
+        char array[20];
+        cin.getline(array, 20);
+        stringstream stringin(array);
+        while (stringin >> flowid){}                  
+
         //#######################//
         // switch port <-- destination switch ID
         // localhost port = switch ID
@@ -2122,6 +2146,7 @@ int main(int argc, char *argv[])
         //pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
         pairs[ct].hops = 1;
+        pairs[ct].flow_id = flowid;
 
         // src --> dst
         int t = src * (degree+1+2*Host_Num) + dst; // output port = destination switch ID
@@ -2165,7 +2190,13 @@ int main(int argc, char *argv[])
                 src = h_src/Host_Num;
                 dst = h_dst/Host_Num;
 
-        int current = src;        
+        int current = src;   
+
+        //read flow id
+        char array[20];
+        cin.getline(array, 20);
+        stringstream stringin(array);
+        while (stringin >> flowid){}       
 
         //#######################//
         // switch port: 0 localhost, 1 left, 2 right, 3-8 inter-group
@@ -2181,6 +2212,7 @@ int main(int argc, char *argv[])
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
+        pairs[ct].flow_id = flowid;
 
         // src --> dst   
         // group #
@@ -2355,6 +2387,12 @@ int main(int argc, char *argv[])
                 src = h_src/Host_Num;
                 dst = h_dst/Host_Num;    
 
+        //read flow id
+        char array[20];
+        cin.getline(array, 20);
+        stringstream stringin(array);
+        while (stringin >> flowid){}                  
+
         // channel <-- node pair ID, node pair <-- channel ID 
         Pair tmp_pair(src,dst,h_src,h_dst);  
         pairs.push_back(tmp_pair);
@@ -2378,6 +2416,7 @@ int main(int argc, char *argv[])
         Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
         pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
         pairs[ct].pair_id = ct; 
+        pairs[ct].flow_id = flowid;
         pairs[ct].hops = pair_path[src_index*V+dst_index].size()+1;
         hops += pairs[ct].hops;
 
