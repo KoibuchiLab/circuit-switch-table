@@ -46,8 +46,10 @@ void usage(char* myname)
 // Communication node pair
 //
 struct Pair {
-   // pair id (from 0, 1, 2, ...)     
+   // pair id (unique, from 0, 1, 2, ...)  
    int pair_id;
+   // flow id (not unique)
+   int flow_id; 
    // channels
    vector<int> channels;
    // source and destination
@@ -279,6 +281,7 @@ bool path_based, int degree, int default_slot)
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
 
             }
             cout << endl;
@@ -307,7 +310,7 @@ bool path_based, int degree, int default_slot)
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+4){
+                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+5){
                                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -316,7 +319,7 @@ bool path_based, int degree, int default_slot)
                         }        
                 }
                 // else if (Vch==2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size() > 0){ //torus
-                //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size(); j=j+4){
+                //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table.size(); j=j+5){
                 //                 if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                 //                         outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+degree+2*Host_Num].routing_table[j] << " ";
                 //                         slot_occupied = true;
@@ -355,7 +358,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+5){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -364,7 +367,7 @@ bool path_based, int degree, int default_slot)
                                 }        
                         }
                         // else if (Vch==2 && Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size() > 0){ //torus
-                        //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size(); j=j+4){
+                        //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table.size(); j=j+5){
                         //                 if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table[j+1] == s){  // j+1 --> slot number
                         //                         outputfile << Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+(degree+1+2*Host_Num)+op].routing_table[j] << " "; // j --> input port
                         //                         slot_occupied = true;
@@ -525,6 +528,7 @@ bool path_based, int PORT, int default_slot)
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                        Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
 
                 }
                 cout << endl;
@@ -567,7 +571,7 @@ bool path_based, int PORT, int default_slot)
                         outputfile << op << "00" << endl;
                 }  
                 for (int s=0; s < slots; s++){
-                        for (int j=0; j < Crossing_Paths[PORT*(i+node_num)+op].routing_table.size(); j=j+4){ //i+node_num --> sw #
+                        for (int j=0; j < Crossing_Paths[PORT*(i+node_num)+op].routing_table.size(); j=j+5){ //i+node_num --> sw #
                                 if (Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j] << " "; // j --> input port
                                         slot_occupied = true;
@@ -693,6 +697,7 @@ bool path_based, int degree, int default_slot)
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
 
                     target_sw = current_pair.dst;
                     input_port = current_pair.src;
@@ -701,6 +706,7 @@ bool path_based, int degree, int default_slot)
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                    Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     
                     cout << "SW " << target_sw << " (port " << input_port << "->" << output_port << ")";
                 }
@@ -736,7 +742,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+5){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -917,6 +923,7 @@ bool path_based, int degree, int default_slot)
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
 
             }
             cout << endl;
@@ -945,7 +952,7 @@ bool path_based, int degree, int default_slot)
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+4){
+                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+5){
                                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -970,7 +977,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+5){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -1161,6 +1168,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
 
             }
             cout << endl;
@@ -1189,7 +1197,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size(); j=j+4){
+                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size(); j=j+5){
                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -1216,7 +1224,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                         }
                         for (int s=0; s < slots; s++){
                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size(); j=j+4){
+                                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size(); j=j+5){
                                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                         outputfile << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                         slot_occupied = true;
