@@ -2655,6 +2655,22 @@ int main(int argc, char *argv[])
    // ##  Slot #       ## //
    // ########################################## //
 
+   if (flows.size()>0){
+        // delete duplicate flow id in channel
+        for (int i = 0; i < ports; i++){
+                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+i;
+                sort(elem->flow_index.begin(), elem->flow_index.end());
+                elem->flow_index.erase(unique(elem->flow_index.begin(), elem->flow_index.end()), elem->flow_index.end());
+        }
+
+        // delete duplicate channel id in flow
+        for (int i = 0; i < flows.size(); i++){
+                vector<Flow>::iterator elem = flows.begin()+i;
+                sort(elem->channels.begin(), elem->channels.end());
+                elem->channels.erase(unique(elem->channels.begin(), elem->channels.end()), elem->channels.end());           
+        }
+   }
+
    int max_cp = max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size();
    int max_id = 0;
 	
