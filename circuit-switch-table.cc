@@ -92,10 +92,10 @@ struct Cross_Paths {
    // routing table
    vector<int> routing_table;  // input port, slot number, src node, dst node, ...
 
-   bool operator == (Cross_Paths &a){
+   bool operator == (const Cross_Paths &a) const {
       return Valid == a.Valid && pair_index.size() == a.pair_index.size();
    }
-   bool operator < (Cross_Paths &a){
+   bool operator < (const Cross_Paths &a) const {
 	 if (Valid == a.Valid)
 	    return pair_index.size() < a.pair_index.size();
 	 else if (Valid == false)
