@@ -25,6 +25,13 @@
 #define SYSTEM "Linux"
 #include <time.h>
 #include <unistd.h>
+#elif defined(__APPLE__) && defined(__MACH__)
+#include <TargetConditionals.h>
+#if TARGET_OS_MAC == 1
+#define SYSTEM "macOS"
+#include <time.h>
+#include <unistd.h>
+#endif
 #endif
 
 #ifndef EXIT_FAILURE
