@@ -51,6 +51,8 @@ struct Flow {
    int id; 
    // channels
    vector<int> channels;
+   // assigned time slot #
+   int ID;
 };
 
 //
@@ -1542,7 +1544,7 @@ int main(int argc, char *argv[])
    vector<Pair> pairs;
 
    // flows
-   vector<Flow> flows;
+   vector<Flow> flows; // flowid --> flows[flowid]
    int pre_flow_id = -1;
 
    cout << " === topology ===" << endl;
@@ -1602,6 +1604,7 @@ int main(int argc, char *argv[])
         if (flowid != pre_flow_id){
                 Flow f;
                 f.id = flowid;
+                f.ID = -1;
                 f.pairs_id.push_back(ct);
                 flows.push_back(f);
                 pre_flow_id = flowid;                
@@ -2182,6 +2185,7 @@ int main(int argc, char *argv[])
         if (flowid != pre_flow_id){
                 Flow f;
                 f.id = flowid;
+                f.ID = -1;
                 f.pairs_id.push_back(ct);
                 flows.push_back(f);
                 pre_flow_id = flowid;                
@@ -2276,6 +2280,7 @@ int main(int argc, char *argv[])
         if (flowid != pre_flow_id){
                 Flow f;
                 f.id = flowid;
+                f.ID = -1;
                 f.pairs_id.push_back(ct);
                 flows.push_back(f);
                 pre_flow_id = flowid;                
@@ -2356,6 +2361,7 @@ int main(int argc, char *argv[])
         if (flowid != pre_flow_id){
                 Flow f;
                 f.id = flowid;
+                f.ID = -1;
                 f.pairs_id.push_back(ct);
                 flows.push_back(f);
                 pre_flow_id = flowid;                
@@ -2606,6 +2612,7 @@ int main(int argc, char *argv[])
         if (flowid != pre_flow_id){
                 Flow f;
                 f.id = flowid;
+                f.ID = -1;
                 f.pairs_id.push_back(ct);
                 flows.push_back(f);
                 pre_flow_id = flowid;                
@@ -2672,6 +2679,7 @@ int main(int argc, char *argv[])
    }
 
    int max_cp = max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size();
+
    int max_id = 0;
 	
    int max_cp_dst = 0; // number of dst-based renewable labels
@@ -2683,18 +2691,28 @@ int main(int argc, char *argv[])
 
    vector<int>::iterator find_ptr;
 
-   for (int j = 0; j < ports; j++ ){ 
-        vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+   if (flows.size()>0){
+        max_cp = 0;
+        for (int j = 0; j < ports; j++ ){ 
+                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+                if (elem->flow_index.size() > max_cp) max_cp = elem->flow_index.size();
                 unsigned int p_ct = 0;
-                while ( p_ct < elem->pair_index.size() ){
-                        int u = elem->pair_index[p_ct]; 
+                while ( p_ct < elem->flow_index.size() ){
+                        int u = elem->flow_index[p_ct]; 
                         bool is_duplicate = false; //check if there is a same destination
                         unsigned int p_ct_t = 0;
                         while ( p_ct_t < p_ct ){
-                                int v = elem->pair_index[p_ct_t]; 
-                                if (pairs[u].h_dst == pairs[v].h_dst){
-                                        is_duplicate = true;
+                                int v = elem->flow_index[p_ct_t]; 
+                                for (int m = 0; m < flows[u].pairs_id.size(); m++){
+                                        for (int n = 0; n < flows[v].pairs_id.size(); n++){
+                                                if (pairs[flows[u].pairs_id[m]].h_dst == pairs[flows[v].pairs_id[n]].h_dst){
+                                                        is_duplicate = true;
+                                                        break;
+                                                }
+                                        }
+                                        if (is_duplicate == true) break;
                                 }
+                                if (is_duplicate == true) break;
                                 p_ct_t++;
                         }
                         if (!is_duplicate) max_cp_dst_t++;
@@ -2702,69 +2720,168 @@ int main(int argc, char *argv[])
                 }
                 if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
                 max_cp_dst_t = 0;
-   }
-   cout << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
-   cout << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
-
-   /*int slot_max = 0;
-   for (int i = 0; i < Crossing_Paths.size(); i++){
-        if (i%(degree+1+2*Host_Num) != degree+2*Host_Num && i%(degree+1+2*Host_Num) != degree+2*Host_Num-1)
-        if(Crossing_Paths[i].pair_index.size() > slot_max)
-        slot_max = Crossing_Paths[i].pair_index.size();
-   }
-   cout << " slot_max = " << slot_max << endl;	*/
-
-   for (int j = 0; j < ports; j++ ){ 
-        vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-        elem = max_element(Crossing_Paths.begin(),Crossing_Paths.end());
-
-        // local IDs are assigned
-        unsigned int path_ct = 0; 
-        while ( path_ct < elem->pair_index.size() ){
-        int t = elem->pair_index[path_ct];      
-        // check if IDs are assigned
-        if ( pairs[t].Valid == true ) {path_ct++; continue;}
-        // ID is assigned from 0
-        int id_tmp = 0;
-        bool NG_ID = false;
-                
-        NEXT_ID:
-                // ID is used or not
-                unsigned int s_ct = 0; // channel
-                while ( s_ct < pairs[t].channels.size() && !NG_ID ){
-                int i = pairs[t].channels[s_ct];
-                //vector<int>::iterator find_ptr;
-                find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
-                if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
-                if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
-                int tmp = 0;
-                while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
-                if (pairs[t].h_dst != Crossing_Paths[i].assigned_dst_list[tmp])
-                                        NG_ID = true; 
-                }
-                s_ct++;
-                }
-                
-                if (NG_ID){
-                id_tmp++; NG_ID = false; goto NEXT_ID;
-                }
-                pairs[t].ID = id_tmp;
-
-                unsigned int a_ct = 0;
-                while ( a_ct < pairs[t].channels.size() ){
-                int j = pairs[t].channels[a_ct];
-                        Crossing_Paths[j].assigned_list.push_back(id_tmp);
-                        int t = elem->pair_index[path_ct];      	
-                        Crossing_Paths[j].assigned_dst_list.push_back(pairs[t].h_dst);
-                        a_ct++; 
-                }
-
-                pairs[t].Valid = true;	    
-                if (max_id <= id_tmp) max_id = id_tmp + 1; 
-
-                path_ct++;
         }
-        elem->Valid = true;
+        cout << " === Max. number of slots (w/o update) [FLOW] ===" << endl << max_cp_dst << endl;	
+        cout << " === Max. number of slots (w/ update) [FLOW] ===" << endl << max_cp << endl;
+
+        max_cp = 0;
+        for (int j = 0; j < ports; j++ ){ 
+                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+                for (int i = 0; i < ports; i++){
+                        if (Crossing_Paths[i].flow_index.size() > max_cp){
+                                max_cp = Crossing_Paths[i].flow_index.size();
+                                elem = Crossing_Paths.begin()+i;
+                        }
+                }
+                
+                // local IDs are assigned
+                unsigned int path_ct = 0; 
+                while ( path_ct < elem->flow_index.size() ){
+                int t = elem->flow_index[path_ct];      
+                // check if IDs are assigned
+                bool valid = true;
+                for (int i = 0; i < flows[t].pairs_id.size(); i++){
+                        if (pairs[flows[t].pairs_id[i]].Valid == false){
+                                valid = false;
+                                break;
+                        }
+                }
+                if ( valid == true ) {path_ct++; continue;}
+                // ID is assigned from 0
+                int id_tmp = 0;
+                bool NG_ID = false;
+                        
+                NEXT_ID_FLOW:
+                        // ID is used or not
+                        unsigned int s_ct = 0; // channel
+                        while ( s_ct < flows[t].channels.size() && !NG_ID ){
+                        int i = flows[t].channels[s_ct];
+                        //vector<int>::iterator find_ptr;
+                        find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
+                        if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
+                        if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
+                        int tmp = 0;
+                        while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
+                        NG_ID = true; 
+                        for (int n = 0; n < flows[t].pairs_id.size(); n++){
+                                if (pairs[flows[t].pairs_id[n]].h_dst == Crossing_Paths[i].assigned_dst_list[tmp]){
+                                        NG_ID = false;
+                                        break;
+                                }
+                        }
+                        }
+                        s_ct++;
+                        }
+                        if (NG_ID){
+                        id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
+                        }
+                        flows[t].ID = id_tmp;
+
+                        unsigned int a_ct = 0;
+                        while ( a_ct < flows[t].channels.size() ){
+                        int j = flows[t].channels[a_ct];
+                                Crossing_Paths[j].assigned_list.push_back(id_tmp);
+                                int t = elem->flow_index[path_ct];   
+                                for (int n = 0; n < flows[t].pairs_id.size(); n++){
+                                        Crossing_Paths[j].assigned_dst_list.push_back(pairs[flows[t].pairs_id[n]].h_dst);
+                                }                                   	
+                                a_ct++; 
+                        }
+
+                        for (int n = 0; n < flows[t].pairs_id.size(); n++){
+                                pairs[flows[t].pairs_id[n]].Valid = true;
+                        }                                   	                       	    
+                        if (max_id <= id_tmp) max_id = id_tmp + 1; 
+
+                        path_ct++;
+                }
+                elem->Valid = true;
+        }
+   }
+   else{
+        for (int j = 0; j < ports; j++ ){ 
+                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+                        unsigned int p_ct = 0;
+                        while ( p_ct < elem->pair_index.size() ){
+                                int u = elem->pair_index[p_ct]; 
+                                bool is_duplicate = false; //check if there is a same destination
+                                unsigned int p_ct_t = 0;
+                                while ( p_ct_t < p_ct ){
+                                        int v = elem->pair_index[p_ct_t]; 
+                                        if (pairs[u].h_dst == pairs[v].h_dst){
+                                                is_duplicate = true;
+                                        }
+                                        p_ct_t++;
+                                }
+                                if (!is_duplicate) max_cp_dst_t++;
+                                p_ct++;
+                        }
+                        if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
+                        max_cp_dst_t = 0;
+        }
+        cout << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
+        cout << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
+
+        /*int slot_max = 0;
+        for (int i = 0; i < Crossing_Paths.size(); i++){
+                if (i%(degree+1+2*Host_Num) != degree+2*Host_Num && i%(degree+1+2*Host_Num) != degree+2*Host_Num-1)
+                if(Crossing_Paths[i].pair_index.size() > slot_max)
+                slot_max = Crossing_Paths[i].pair_index.size();
+        }
+        cout << " slot_max = " << slot_max << endl;	*/
+
+        for (int j = 0; j < ports; j++ ){ 
+                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+                elem = max_element(Crossing_Paths.begin(),Crossing_Paths.end());
+
+                // local IDs are assigned
+                unsigned int path_ct = 0; 
+                while ( path_ct < elem->pair_index.size() ){
+                int t = elem->pair_index[path_ct];      
+                // check if IDs are assigned
+                if ( pairs[t].Valid == true ) {path_ct++; continue;}
+                // ID is assigned from 0
+                int id_tmp = 0;
+                bool NG_ID = false;
+                        
+                NEXT_ID:
+                        // ID is used or not
+                        unsigned int s_ct = 0; // channel
+                        while ( s_ct < pairs[t].channels.size() && !NG_ID ){
+                        int i = pairs[t].channels[s_ct];
+                        //vector<int>::iterator find_ptr;
+                        find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
+                        if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
+                        if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
+                        int tmp = 0;
+                        while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
+                        if (pairs[t].h_dst != Crossing_Paths[i].assigned_dst_list[tmp])
+                                                NG_ID = true; 
+                        }
+                        s_ct++;
+                        }
+                        
+                        if (NG_ID){
+                        id_tmp++; NG_ID = false; goto NEXT_ID;
+                        }
+                        pairs[t].ID = id_tmp;
+
+                        unsigned int a_ct = 0;
+                        while ( a_ct < pairs[t].channels.size() ){
+                        int j = pairs[t].channels[a_ct];
+                                Crossing_Paths[j].assigned_list.push_back(id_tmp);
+                                int t = elem->pair_index[path_ct];      	
+                                Crossing_Paths[j].assigned_dst_list.push_back(pairs[t].h_dst);
+                                a_ct++; 
+                        }
+
+                        pairs[t].Valid = true;	    
+                        if (max_id <= id_tmp) max_id = id_tmp + 1; 
+
+                        path_ct++;
+                }
+                elem->Valid = true;
+        }
    }
 
    if (Topology == 0 || Topology == 1) // mesh or torus
