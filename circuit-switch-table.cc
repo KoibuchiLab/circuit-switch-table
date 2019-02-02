@@ -218,6 +218,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
    string input_port_s; // string
    string slot_num_s; // string
    system("rm output/sw*");  // delete previous output results
+   if (flows.size()>0) system("rm output/flow*");  // delete previous output results
    cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
@@ -225,6 +226,17 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
             if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+
+            if (flows.size()>0){
+                char filename[100]; 
+                sprintf(filename, "output/flow%d", current_pair.flow_id); // save to output/ 
+                char* fn = filename;
+                ofstream outputfile(fn, ios::app); // iostream append  
+                outputfile << current_pair.src << " " << current_pair.src << " " << slot_num << endl;  
+                outputfile << current_pair.dst << " " << current_pair.dst << " " << slot_num << endl;
+                outputfile.close(); 
+            } 
+
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = 0;
@@ -523,6 +535,7 @@ bool path_based, int PORT, int default_slot, vector<Flow> flows)
         string input_port_s; // string
         string slot_num_s; // string
         system("rm output/sw*");  // delete previous output results
+        if (flows.size()>0) system("rm output/flow*");  // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
         for (int i=0; i < pairs.size(); i++){
                 Pair current_pair = pairs[i];
@@ -530,6 +543,17 @@ bool path_based, int PORT, int default_slot, vector<Flow> flows)
                 if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
                 //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
                 cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+
+                if (flows.size()>0){
+                        char filename[100]; 
+                        sprintf(filename, "output/flow%d", current_pair.flow_id); // save to output/ 
+                        char* fn = filename;
+                        ofstream outputfile(fn, ios::app); // iostream append  
+                        outputfile << current_pair.src << " " << current_pair.src << " " << slot_num << endl;  
+                        outputfile << current_pair.dst << " " << current_pair.dst << " " << slot_num << endl;
+                        outputfile.close(); 
+                } 
+
                 for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> from src node, current_pair.channels[-1] --> to dst node
                         target_sw = -1;
                         input_port = -1;
@@ -721,6 +745,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
    int output_port; // of target_sw
    int slot_num; // assigned slot number for a node pair
    system("rm output/sw*");  // delete previous output results
+   if (flows.size()>0) system("rm output/flow*");  // delete previous output results
    cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
@@ -728,6 +753,17 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
             if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+
+            if (flows.size()>0){
+                char filename[100]; 
+                sprintf(filename, "output/flow%d", current_pair.flow_id); // save to output/ 
+                char* fn = filename;
+                ofstream outputfile(fn, ios::app); // iostream append  
+                outputfile << current_pair.src << " " << current_pair.src << " " << slot_num << endl;  
+                outputfile << current_pair.dst << " " << current_pair.dst << " " << slot_num << endl;
+                outputfile.close(); 
+            } 
+
             for (int j=0; j < current_pair.channels.size(); j++){ // only current_pair.channels[0] --> from src to dst
                     target_sw = -1;
                     input_port = 0;
@@ -904,6 +940,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
    int output_port; // of target_sw
    int slot_num; // assigned slot number for a node pair
    system("rm output/sw*");  // delete previous output results
+   if (flows.size()>0) system("rm output/flow*");  // delete previous output results
    cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
@@ -911,6 +948,17 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
             if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+
+            if (flows.size()>0){
+                char filename[100]; 
+                sprintf(filename, "output/flow%d", current_pair.flow_id); // save to output/ 
+                char* fn = filename;
+                ofstream outputfile(fn, ios::app); // iostream append  
+                outputfile << current_pair.src << " " << current_pair.src << " " << slot_num << endl;  
+                outputfile << current_pair.dst << " " << current_pair.dst << " " << slot_num << endl;
+                outputfile.close(); 
+            } 
+
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = 0;
@@ -1158,6 +1206,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
    int output_port; // of target_sw
    int slot_num; // assigned slot number for a node pair
    system("rm output/sw*");  // delete previous output results
+   if (flows.size()>0) system("rm output/flow*");  // delete previous output results
    cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
@@ -1165,6 +1214,16 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
             if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+
+            if (flows.size()>0){
+                char filename[100]; 
+                sprintf(filename, "output/flow%d", current_pair.flow_id); // save to output/ 
+                char* fn = filename;
+                ofstream outputfile(fn, ios::app); // iostream append  
+                outputfile << current_pair.src << " " << current_pair.src << " " << slot_num << endl;  
+                outputfile << current_pair.dst << " " << current_pair.dst << " " << slot_num << endl;
+                outputfile.close(); 
+            } 
 
             int src_index = -1;
             int dst_index = -1;
