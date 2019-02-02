@@ -1,5 +1,11 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
+## 2019/02/01 update
+### Adds
+* Support flow id specified in input traffic file
+* Flow id should be specified continuously from 0, 1, 2, ...
+* Allocated slot number is not updated for each node pair with the same flow id
+* Compatible with previous versions (old input traffic files)
 ## 2019/01/28 update
 ### Adds
 * Support the customized topology file with the specified switch number and port number
