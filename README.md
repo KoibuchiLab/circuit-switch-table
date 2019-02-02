@@ -3,6 +3,15 @@ This repo contains the work on circuit-switched network, including estimating # 
 ## 2019/02/01 update
 ### Adds
 * Support flow id specified in input traffic file
+> Src Dst Flow_ID
+
+    0 2 0
+    0 1 1
+    2 0 2
+    2 1 2
+    2 3 2
+    3 1 3
+
 * Flow id should be specified continuously from 0, 1, 2, ...
 * Allocated slot number is not updated for each node pair with the same flow id
 * Compatible with previous versions (old input traffic files)
