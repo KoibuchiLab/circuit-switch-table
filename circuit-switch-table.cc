@@ -1,14 +1,18 @@
 //
 // circuit-switch-table.cc
 //
-// mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)
+// mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)/topology-file
 // Usage: cat test.txt | ./cst.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
 //
 // % less test.txt
 // 3  4    <--- path from node 3 to node 4
 // 2  4
 //
-// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./cst.out -D 2 -a 4 -T 0
+// % less test_flow_id.txt
+// 3  4  0  <--- path from node 3 to node 4 (flow 0)
+// 2  4  1 
+//
+// Usage: ./tpg.out -t 0 -n 4 | ./cst.out -D 2 -a 4 -T 0
 //
 // Wed Sep 06 19:24:42 JST 2018 huyao@nii.ac.jp
 //
