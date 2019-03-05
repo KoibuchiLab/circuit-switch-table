@@ -36,14 +36,14 @@ static void usage(char *myname);
 void usage(char *myname)
 {
         cerr << "usage: " << myname << " [-anTuDdmt]" << endl;
-        cerr << "\t-a<n>\t: Set the array size for mesh or torus (-T [0|1])" << endl;
-        cerr << "\t-n<n>\t: Set the number of hosts to one switch for fat-tree (-T 2)" << endl;
-        cerr << "\t-T<n>\t: Topology 0: Mesh, 1: Torus, 2: Fat Tree, 3: Fully Connected, 4: Dragonfly (FCC), 5: Topology File" << endl;
+        cerr << "\t-T <n>\t: Topology 0: Mesh, 1: Torus, 2: Fat Tree, 3: Fully Connected, 4: Dragonfly (FCC), 5: Topology File" << endl;        
+        cerr << "\t-a <n>\t: Set array size for mesh or torus (-T [0|1])" << endl;
+        cerr << "\t-n <n>\t: Set the number of hosts to one switch for fat-tree (-T 2)" << endl;
         cerr << "\t-u   \t: Allow to update a slot number (at intermediate switches on a path)" << endl;
-        cerr << "\t-D<n>\t: Set switch degree for mesh or torus (-T [0|1])" << endl;
-        cerr << "\t-d<n>\t: Set switch ports (not include host) for dragonfly (-T 4)" << endl;
-        cerr << "\t-m<n>\t: Set the number of switches in a group for dragonfly (-T 4)" << endl;
-        cerr << "\t-t<file name>\t: Topology file name (-T 5)" << endl;
+        cerr << "\t-D <n>\t: Set switch degree for mesh or torus (-T [0|1])" << endl;
+        cerr << "\t-d <n>\t: Set switch ports (not include host) for dragonfly (-T 4)" << endl;
+        cerr << "\t-m <n>\t: Set the number of switches in a group for dragonfly (-T 4)" << endl;
+        cerr << "\t-t <filename>\t: Topology file name (-T 5)" << endl;
 }
 
 //

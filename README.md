@@ -2,8 +2,9 @@
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
 ## 2019/02/01 update
 ### Adds
-* Support flow id specified in input traffic file
-> Src Dst Flow_ID
+**Support flow id specified in input traffic file**
+
+    #Src Dst Flow_ID
 
     0 2 0
     0 1 1
@@ -19,7 +20,9 @@ This repo contains the work on circuit-switched network, including estimating # 
 ### Adds
 * Support the customized topology file with the specified switch number and port number
 * For each line in the topology file, the format is 
-> Src_SW Src_Port Dst_SW Dst_Port
+```
+Src_SW Src_Port Dst_SW Dst_Port
+```
 ### Parameters
 * -T 5 (customized topology file, must be followed by -t to specify the topology file name)
 * -t [topo-file-name]  
@@ -29,9 +32,11 @@ SW0 (port2) <--> (port2) SW1 (port1) <--> (port1) SW2
     0 2 1 2
     1 1 2 1
 
-port0 is retained for localhost
+* port0 is retained for localhost
 ### Usage
-> cat test-tf.txt | ./cst.out -T 5 -t topo-file.txt
+```
+$ cat test-tf.txt | ./cst.out -T 5 -t topo-file.txt
+```
 ## 2018/11/24 update
 ### Adds
 * Support the topology of Full mesh Connected Circles (FCC)
@@ -47,7 +52,9 @@ port0 is retained for localhost
 * Port 3-8 of a switch (0,1,2,3) in group A is connected to port 8-3 of a switch (3,2,1,0) in group B
 ### Usage
 * FCC topology, uniform traffic pattern, d = 8, m = 4, switches are ((d-2)*m+1)*m = 100
-> ./tpg.out -t 0 -a 10 | ./cst.out -T 4 -d 8 -m 4
+```
+$ ./tpg.out -t 0 -a 10 | ./cst.out -T 4 -d 8 -m 4
+```
 ## Source Files
 ### Makefile
 This file produces two executable files:
@@ -60,8 +67,9 @@ This file produces two executable files:
     circuit switch table (see details in circuit-switch-table.cc)
 
 Usage: 
-> ./tpg.out -t $traffic_pattern -a $node_num | ./cst.out -T $topology -a $node_num
-
+```
+$ ./tpg.out -t $traffic_pattern -a $node_num | ./cst.out -T $topology -a $node_num
+```
 Other parameters:
 * mesh (-T 0)
 
@@ -107,11 +115,15 @@ Other parameters:
 </div>
 
 * Compilation:
-> g++ -c circuit-switch-table.cc  
-> g++ circuit-switch-table.o -o circuit-switch-table.out
+```
+$ g++ -c circuit-switch-table.cc  
+$ g++ circuit-switch-table.o -o circuit-switch-table.out
+```
 * Usage: 
-> // for test in a 16-switch 2-D mesh (see traffic pattern details in test.txt)  
-> cat test.txt | ./circuit-switch-table.out -a 4 -T 0 -D 2
+```
+// for test in a 16-switch 2-D mesh (see traffic pattern details in test.txt)  
+$ cat test.txt | ./circuit-switch-table.out -a 4 -T 0 -D 2
+```
 
 <div align=center>
 <img src="fig/test-run-0.png" width=512 height=256 />
@@ -123,8 +135,10 @@ Other parameters:
 <img src="fig/test-run-1.png" width=512 height=256 />
 </div>
 
-> // 64-switch 2-D torus (see traffic pattern details in traffic-pattern-generator.cc below)  
-> cat ./traffic-pattern-generator.out -t 0 | ./circuit-switch-table.out -a 8 -T 1 -D 2
+```
+// 64-switch 2-D torus (see traffic pattern details in traffic-pattern-generator.cc below) 
+$ cat ./traffic-pattern-generator.out -t 0 | ./circuit-switch-table.out -a 8 -T 1 -D 2
+```
 
 * Switch Number (3-D): as follows.
 
@@ -155,11 +169,15 @@ Other parameters:
 ### traffic-pattern-generator.cc
 * This file helps to generate various traditional traffic patterns, including (-t) 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all.
 * Compilation:
-> g++ -c traffic-pattern-generator.cc  
-> g++ traffic-pattern-generator.o -o traffic-pattern-generator.out
+```
+$ g++ -c traffic-pattern-generator.cc  
+$ g++ traffic-pattern-generator.o -o traffic-pattern-generator.out
+```
 * Usage:
-> // 16-node uniform (-t 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
-> ./traffic-pattern-generator.out -t 0 -n 4  
+```
+// 16-node uniform (-t 0 uniform, 1 matrix, 2 reversal, 3 hotspot, 4 neighbor, 5 shuffle, 6 butterfly, 7 complement, 8 tornado, 9 all-to-all)  
+$ ./traffic-pattern-generator.out -t 0 -n 4
+```  
 <div align=center>
 <img src="fig/test-run-2.png" width=512 height=128 />
 </div>
