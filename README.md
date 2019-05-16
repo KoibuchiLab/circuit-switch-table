@@ -1,5 +1,34 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
+## Usages 
+```shell
+//uniform, 16 nodes, 2-d mesh
+$ ./tpg.out -t 0 -a 4 | ./cst.out -T 0 -a 4
+
+//uniform, 16 nodes, 2-d torus
+$ ./tpg.out -t 0 -a 4 | ./cst.out -T 1 -a 4
+
+//uniform, 64 nodes, 3-d mesh
+$ ./tpg.out -t 0 -a 4 -j 3 | ./cst.out -T 0 -a 4 -D 3
+
+//uniform, 64 nodes, 3-d torus
+$ ./tpg.out -t 0 -a 4 -j 3 | ./cst.out -T 1 -a 4 -D 3
+
+//uniform, 16 nodes, 1s-4s-16n fat-tree
+$ ./tpg.out -t 0 -a 4 | ./cst.out -T 2 -a 4 -n 4
+
+//uniform, 64 nodes, 1s-4s-16s-64n fat-tree
+$ ./tpg.out -t 0 -a 8 | ./cst.out -T 2 -a 8 -n 4
+
+//uniform, 16 nodes, fully-connected
+$ ./tpg.out -t 0 -a 4 | ./cst.out -T 3 -a 4
+
+//uniform, 8 ports (2 intra-group, 6 inter-group), 4 switches in a group, (6*4+1)*4 = 100 nodes, fcc
+$ ./tpg.out -t 0 -a 10 | ./cst.out -T 4 -d 8 -m 4
+
+//topology file (w/ flow id)
+$ cat test-tf.txt | ./cst.out -T 5 -t topo-file-cross.txt
+```
 ## 2019/02/01 update
 ### Adds
 **Support flow id specified in input traffic file**
@@ -35,7 +64,7 @@ SW0 (port2) <--> (port2) SW1 (port1) <--> (port1) SW2
 * port0 is retained for localhost
 ### Usage
 ```
-$ cat test-tf.txt | ./cst.out -T 5 -t topo-file.txt
+$ cat test-tf.txt | ./cst.out -T 5 -t topo-file-cross.txt
 ```
 ## 2018/11/24 update
 ### Adds
