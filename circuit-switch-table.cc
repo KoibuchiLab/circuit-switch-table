@@ -1641,7 +1641,7 @@ int minDistance(int dist[], bool sptSet[], int V)
 }
 
 // Function to print shortest path from source to j using parent array
-void printPath(int parent[], int j, int src, int dst, vector<vector<int>> &pair_path, int V)
+void printPath(int parent[], int j, int src, int dst, vector< vector<int> > &pair_path, int V)
 {
         // Base Case : If j is source
         if (parent[j] == -1)
@@ -1654,7 +1654,7 @@ void printPath(int parent[], int j, int src, int dst, vector<vector<int>> &pair_
 }
 
 // A utility function to print the constructed distance array
-int printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> &pair_path)
+int printSolution(int dist[], int V, int parent[], int src, vector< vector<int> > &pair_path)
 {
         //int src = 0;
         //printf("Vertex\t Distance\tPath");
@@ -1670,7 +1670,7 @@ int printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> 
 }
 
 // Funtion that implements Dijkstra's single source shortest path algorithm for a graph represented using adjacency matrix representation
-void dijkstra(int V, vector<int> graph, int src, vector<vector<int>> &pair_path)
+void dijkstra(int V, vector<int> graph, int src, vector< vector<int> > &pair_path)
 {
 
         // The output array. dist[i] will hold the shortest distance from src to i
@@ -3199,7 +3199,7 @@ int main(int argc, char *argv[])
                 }
 
                 // dijkstra for each pair, store intermediate and dst sws (not including src sw)
-                vector<vector<int>> pair_path(V * V);
+                vector< vector<int> > pair_path(V * V);
                 for (int i = 0; i < V; i++)
                 {
                         dijkstra(V, graph, i, pair_path);

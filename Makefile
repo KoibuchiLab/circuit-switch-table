@@ -6,21 +6,26 @@
 # v1.0
 
 #compiler
-CC = g++
+CXX = g++
+CXXFLAGS = -Wall -Wextra -Wno-sign-compare
 
 #object files
 objects = circuit-switch-table.o traffic-pattern-generator.o
 
-all : cst tpg
+all : cst.out tpg.out
 
-cst : circuit-switch-table.o 
-	${CC} circuit-switch-table.o -o cst.out
+cst.out : circuit-switch-table.o 
+	${CXX} circuit-switch-table.o -o cst.out
+clean::
+	-rm -f cst.out
 
-tpg : traffic-pattern-generator.o
-	${CC} traffic-pattern-generator.o -o tpg.out
+tpg.out : traffic-pattern-generator.o
+	${CXX} traffic-pattern-generator.o -o $@
+clean::
+	-rm -f tpg.out
 
 traffic-pattern-generator.o : traffic-pattern-generator.h
 
-clean : 
-	-rm ${objects}
+clean:: 
+	-rm -f ${objects}
 
