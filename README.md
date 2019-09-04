@@ -1,34 +1,71 @@
 # circuit-switch-table
 This repo contains the work on circuit-switched network, including estimating # of slots, generating routing table for each switch.
+
 ## Usages 
+uniform, 16 nodes, 2-d mesh
 ```shell
-//uniform, 16 nodes, 2-d mesh
 $ ./tpg.out -t 0 -a 4 | ./cst.out -T 0 -a 4
+```
 
-//uniform, 16 nodes, 2-d torus
+uniform, 16 nodes, 2-d torus
+```shell
 $ ./tpg.out -t 0 -a 4 | ./cst.out -T 1 -a 4
+```
 
-//uniform, 64 nodes, 3-d mesh
+uniform, 64 nodes, 3-d mesh
+```shell
 $ ./tpg.out -t 0 -a 4 -j 3 | ./cst.out -T 0 -a 4 -D 3
+```
 
-//uniform, 64 nodes, 3-d torus
+uniform, 64 nodes, 3-d torus
+```shell
 $ ./tpg.out -t 0 -a 4 -j 3 | ./cst.out -T 1 -a 4 -D 3
+```
 
-//uniform, 16 nodes, 1s-4s-16n fat-tree
+uniform, 16 nodes, 1s-4s-16n fat-tree
+```shell
 $ ./tpg.out -t 0 -a 4 | ./cst.out -T 2 -a 4 -n 4
+```
 
-//uniform, 64 nodes, 1s-4s-16s-64n fat-tree
+uniform, 64 nodes, 1s-4s-16s-64n fat-tree
+```shell
 $ ./tpg.out -t 0 -a 8 | ./cst.out -T 2 -a 8 -n 4
+```
 
-//uniform, 16 nodes, fully-connected
+uniform, 16 nodes, fully-connected
+```shell
 $ ./tpg.out -t 0 -a 4 | ./cst.out -T 3 -a 4
+```
 
-//uniform, 8 ports (2 intra-group, 6 inter-group), 4 switches in a group, (6*4+1)*4 = 100 nodes, fcc
+uniform, 8 ports (2 intra-group, 6 inter-group), 4 switches in a group, (6*4+1)*4 = 100 nodes, fcc
+```shell
 $ ./tpg.out -t 0 -a 10 | ./cst.out -T 4 -d 8 -m 4
+```
 
-//topology file (w/ flow id)
+topology file (w/ flow id)
+```shell
 $ cat test-tf.txt | ./cst.out -T 5 -t topo-file-cross.txt
 ```
+
+## Parameters:
+| Parameter | Note | Value |
+| --- | --- | --- |
+| **-T \<n\>** | Set topology | 0: Mesh, <br> 1: Torus, <br> 2: Fat Tree, <br> 3: Fully Connected, <br> 4: Dragonfly (FCC), <br> 5: Topology File |
+| **-a \<n\>** | Set array size for mesh (-T 0) or torus (-T 1) | Integer <br> (defaultly 4) |
+| **-n \<n\>** | Set the number of hosts to one switch for fat-tree (-T 2) | Integer <br> (defaultly 1) |
+| **-u** | Allow to update a slot number (at intermediate switches on a path) |  |
+| **-D \<n\>** | Set switch degree for mesh (-T 0) or torus (-T 1) | Integer <br> (defaultly 4) |
+| **-d \<n\>** | Set switch ports (not include host) for dragonfly (-T 4) | Integer <br> (defaultly 8) |
+| **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer <br> (defaultly 4) |
+| **-t \<filename\>** | Set topology file name (-T 5) | File name |
+| **-s \<n\>** | Set the total number of slots in a switch | Integer <br> (defaultly 8) |
+
+## 2019/09/04 update
+### Adds
+* Support setting the total number of slots in a switch
+### Parameters
+* -s (defaultly 8)
+
 ## 2019/02/01 update
 ### Adds
 **Support flow id specified in input traffic file**
