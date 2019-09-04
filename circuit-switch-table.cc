@@ -381,7 +381,7 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                 outputfile << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + degree + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -419,8 +419,8 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         outputfile << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile << "void" << endl;
 
                 // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
                 //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j++){
@@ -445,7 +445,7 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         {
                                 outputfile << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -483,8 +483,8 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                 outputfile << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile << "void" << endl;
 
                         // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
                         //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size(); j++){
@@ -717,7 +717,7 @@ void show_paths_tree(vector<Cross_Paths> Crossing_Paths, int ct, int node_num,
                         {
                                 outputfile << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 for (int j = 0; j < Crossing_Paths[PORT * (i + node_num) + op].routing_table.size(); j = j + 5)
                                 { //i+node_num --> sw #
@@ -742,8 +742,8 @@ void show_paths_tree(vector<Cross_Paths> Crossing_Paths, int ct, int node_num,
                                 outputfile << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile << "void" << endl;
                 }
                 outputfile.close();
         }
@@ -943,7 +943,7 @@ void show_paths_fullyconnected(vector<Cross_Paths> Crossing_Paths, int ct, int s
                         {
                                 outputfile << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -971,8 +971,8 @@ void show_paths_fullyconnected(vector<Cross_Paths> Crossing_Paths, int ct, int s
                                 outputfile << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile << "void" << endl;
                 }
                 outputfile.close();
         }
@@ -1215,7 +1215,7 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                 outputfile << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + degree + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -1243,8 +1243,8 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         outputfile << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile << "void" << endl;
 
                 for (int op = 1; op < degree + 1; op++)
                 {
@@ -1256,7 +1256,7 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         {
                                 outputfile << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -1284,8 +1284,8 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                 outputfile << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile << "void" << endl;
                 }
                 outputfile.close();
         }
@@ -1535,7 +1535,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                 outputfile << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + (switch_num - 1) + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -1563,8 +1563,8 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         outputfile << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile << "void" << endl;
 
                 for (int op = 0; op < (switch_num - 1) + 1; op++)
                 {
@@ -1579,7 +1579,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                 {
                                         outputfile << out_port << "00" << endl;
                                 }
-                                for (int s = 0; s < slots; s++)
+                                for (int s = 0; s < default_slot; s++)
                                 {
                                         if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                         {
@@ -1607,8 +1607,8 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                         outputfile << endl;
                                         slot_occupied = false;
                                 }
-                                for (int s = 0; s < default_slot - slots; s++)
-                                        outputfile << "void" << endl;
+                                // for (int s = 0; s < default_slot - slots; s++)
+                                //         outputfile << "void" << endl;
                         }
                 }
 
@@ -1654,7 +1654,7 @@ void printPath(int parent[], int j, int src, int dst, vector<vector<int>> &pair_
 }
 
 // A utility function to print the constructed distance array
-int printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> &pair_path)
+void printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> &pair_path)
 {
         //int src = 0;
         //printf("Vertex\t Distance\tPath");
@@ -1730,7 +1730,7 @@ int main(int argc, char *argv[])
         static int Topology = 0;
         int c;
         //false:destination_based (slot # not updated), true:path_based (slot # updated)
-        static bool path_based = false;
+        static bool path_based = true;
         // (mesh or torus) degree = 2 * dimension, (fully-connected) degree = switch_num -1, (fcc) degree = inter-group + intra-group (2 for ring)
         static int degree = 4;
         //mesh or torus
@@ -1744,7 +1744,10 @@ int main(int argc, char *argv[])
         // topology file
         static char *topology_file;
 
-        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:h")) != -1)
+        // default number of slots in one switch
+        static int default_slot = 8;
+
+        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:s:h")) != -1)
         {
                 switch (c)
                 {
@@ -1758,7 +1761,7 @@ int main(int argc, char *argv[])
                         Host_Num = atoi(optarg);
                         break;
                 case 'u':
-                        path_based = true;
+                        path_based = false;
                         break;
                 case 'D':
                         dimension = atoi(optarg);
@@ -1772,6 +1775,9 @@ int main(int argc, char *argv[])
                 case 't': //topology file (Topology = 5)
                         topology_file = optarg;
                         break;
+                case 's': //number of slots in one switch
+                        default_slot = atoi(optarg);
+                        break;                        
                 case 'h':
                 case '?':
                 default:
@@ -1792,8 +1798,8 @@ int main(int argc, char *argv[])
         }
 
         cout << " ### start ###" << endl;
-        cout << " === Update of slot number ===" << endl
-             << " 0 (no) / 1 (yes): " << path_based << " (Use -u to activate the update) " << endl;
+        // cout << " === Update of slot number ===" << endl
+        //      << " 0 (no) / 1 (yes): " << path_based << " (Use -u to activate the update) " << endl;
 
         // source and destination
         int src = -1, dst = -1, h_src = -1, h_dst = -1;
@@ -3337,8 +3343,6 @@ int main(int argc, char *argv[])
         // calculate number of dst-based renewable label
         int max_cp_dst_t = 0;
 
-        int default_slot = 8;
-
         vector<int>::iterator find_ptr;
 
         if (flows.size() > 0)
@@ -3383,9 +3387,11 @@ int main(int argc, char *argv[])
                                 max_cp_dst = max_cp_dst_t;
                         max_cp_dst_t = 0;
                 }
-                cout << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                     << max_cp_dst << endl;
-                cout << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+                // cout << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+                //      << max_cp_dst << endl;
+                // cout << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+                //      << max_cp << endl;
+                cout << " === Max. number of slots [FLOW] ===" << endl
                      << max_cp << endl;
 
                 max_cp = 0;
@@ -3515,10 +3521,12 @@ int main(int argc, char *argv[])
                                 max_cp_dst = max_cp_dst_t;
                         max_cp_dst_t = 0;
                 }
-                cout << " === Max. number of slots (w/o update) ===" << endl
-                     << max_cp_dst << endl;
-                cout << " === Max. number of slots (w/ update) ===" << endl
-                     << max_cp << endl;
+                // cout << " === Max. number of slots (w/o update) ===" << endl
+                //      << max_cp_dst << endl;
+                // cout << " === Max. number of slots (w/ update) ===" << endl
+                //      << max_cp << endl;
+                cout << " === Max. number of slots ===" << endl
+                      << max_cp << endl;
 
                 /*int slot_max = 0;
         for (int i = 0; i < Crossing_Paths.size(); i++){
