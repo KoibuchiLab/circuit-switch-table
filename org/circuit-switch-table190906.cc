@@ -1558,8 +1558,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                         }
                         if (slot_occupied == false)
                         {
-                                //outputfile << "void";
-                                outputfile << degree + 1; //mod by koheiito
+                                outputfile << "void";
                         }
                         outputfile << endl;
                         slot_occupied = false;
@@ -1613,8 +1612,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                                 }
                                                 if (slot_occupied == false)
                                                 {
-                                                        //outputfile << "void";
-                                                        outputfile << degree + 1; //mod by koheiito
+                                                        outputfile << "void";
                                                 }
                                                 outputfile << endl;
                                                 slot_occupied = false;
@@ -1759,10 +1757,7 @@ int main(int argc, char *argv[])
         // default number of slots in one switch
         static int default_slot = 8;
 
-        // re-assign slot # in accordance with flow id
-        static int reassign_slot = false;
-
-        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:s:rh")) != -1)
+        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:s:h")) != -1)
         {
                 switch (c)
                 {
@@ -1792,10 +1787,7 @@ int main(int argc, char *argv[])
                         break;
                 case 's': //number of slots in one switch
                         default_slot = atoi(optarg);
-                        break;        
-                case 'r': //re-assign slot # in accordance with flow id
-                        reassign_slot = true;
-                        break;                                           
+                        break;                        
                 case 'h':
                 case '?':
                 default:
@@ -3484,11 +3476,6 @@ int main(int argc, char *argv[])
                                         NG_ID = false;
                                         goto NEXT_ID_FLOW;
                                 }
-
-                                if (reassign_slot == true){
-                                        id_tmp = flows[t].id;
-                                }
-
                                 flows[t].ID = id_tmp;
 
                                 if (id_tmp > ID_max) ID_max = id_tmp;
