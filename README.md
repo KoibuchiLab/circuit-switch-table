@@ -59,6 +59,13 @@ $ cat test-tf.txt | ./cst.out -T 5 -t topo-file-cross.txt
 | **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer <br> (defaultly 4) |
 | **-t \<filename\>** | Set topology file name (-T 5) | File name |
 | **-s \<n\>** | Set the total number of slots in a switch | Integer <br> (defaultly 8) |
+| **-r** | Set flow ID in accordance with slot # (flow ID= slot #) |  |
+
+## 2019/09/09 update
+### Adds
+* Support setting flow ID in accordance with slot # (flow ID= slot #)
+### Parameters
+* -r 
 
 ## 2019/09/04 update
 ### Adds
