@@ -1762,7 +1762,10 @@ int main(int argc, char *argv[])
         // re-assign slot # in accordance with flow id
         static int reassign_slot = false;
 
-        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:s:rh")) != -1)
+        // re-assign slot # in ascending order based on flow id
+        static int reassign_slot_a = false;        
+
+        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:t:s:rRh")) != -1)
         {
                 switch (c)
                 {
@@ -1795,7 +1798,10 @@ int main(int argc, char *argv[])
                         break;        
                 case 'r': //re-assign slot # in accordance with flow id
                         reassign_slot = true;
-                        break;                                           
+                        break;   
+                case 'R': //re-assign slot # in ascending order based on flow id
+                        reassign_slot_a = true;
+                        break;                                                                 
                 case 'h':
                 case '?':
                 default:
@@ -3521,6 +3527,25 @@ int main(int argc, char *argv[])
                 cout << " === Total number of occupied slots ===" << endl
                      << ID_max + 1 << endl;
 
+                if (reassign_slot_a == true){
+                        vector<int> slots;
+                        vector<int>::iterator it; 
+                        for (int flowid = 0; flowid < flows.size(); flowid++){
+                                it = find(slots.begin(), slots.end(), flows[flowid].ID);
+                                if (it == slots.end()){
+                                        slots.push_back(flows[flowid].ID);
+                                }
+
+                        }
+                        for (int flowid = 0; flowid < flows.size(); flowid++){
+                                for (int n = 0; n < slots.size(); n++){
+                                        if (flows[flowid].ID == slots[n]){
+                                                flows[flowid].ID = n;
+                                                break;
+                                        }
+                                }
+                        }
+                }
         }
         else
         {
