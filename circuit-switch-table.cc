@@ -44,6 +44,9 @@ void usage(char *myname)
         cerr << "\t-d <n>\t: Set switch ports (not include host) for dragonfly (-T 4)" << endl;
         cerr << "\t-m <n>\t: Set the number of switches in a group for dragonfly (-T 4)" << endl;
         cerr << "\t-t <filename>\t: Topology file name (-T 5)" << endl;
+        cerr << "\t-s <n>\t: Set the total number of slots in a switch" << endl;
+        cerr << "\t-r   \t: Re-assign slot # in accordance with flow ID (flow ID = slot #)" << endl;
+        cerr << "\t-R   \t: Re-assign slot # in ascending order based on flow ID" << endl;
 }
 
 //
@@ -241,7 +244,7 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         string output_port_s;    // string
         string input_port_s;     // string
         string slot_num_s;       // string
-        system("rm output/sw*"); // delete previous output results
+        system("rm output/board*"); // delete previous output results
         if (flows.size() > 0)
                 system("rm output/flow*");                          // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
@@ -311,7 +314,7 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                      << " - [slot " << slot_num << "] -> ";
                         }
                         //     char filename[100];
-                        //     sprintf(filename, "output/sw%d", target_sw); // save to output/
+                        //     sprintf(filename, "output/board%d", target_sw); // save to output/
                         //     char* fn = filename;
                         //     ofstream outputfile(fn, ios::app); // iostream append
                         //     stringstream ss_op;  // output port
@@ -361,7 +364,7 @@ void show_paths(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         {
                 cout << " SW " << i << " : " << endl;
                 char filename[100];
-                sprintf(filename, "output/sw%d", i); // save to output/
+                sprintf(filename, "output/board%d", i); // save to output/
                 char *fn = filename;
                 ofstream outputfile(fn, ios::app); // iostream append
                 int slots;
@@ -601,7 +604,7 @@ void show_paths_tree(vector<Cross_Paths> Crossing_Paths, int ct, int node_num,
         string output_port_s;    // string
         string input_port_s;     // string
         string slot_num_s;       // string
-        system("rm output/sw*"); // delete previous output results
+        system("rm output/board*"); // delete previous output results
         if (flows.size() > 0)
                 system("rm output/flow*");                          // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
@@ -687,7 +690,7 @@ void show_paths_tree(vector<Cross_Paths> Crossing_Paths, int ct, int node_num,
         {
                 cout << " SW " << i << " : " << endl;
                 char filename[100];
-                sprintf(filename, "output/sw%d", i); // save to output/
+                sprintf(filename, "output/board%d", i); // save to output/
                 char *fn = filename;
                 ofstream outputfile(fn, ios::app); // iostream append
                 int slots;
@@ -850,7 +853,7 @@ void show_paths_fullyconnected(vector<Cross_Paths> Crossing_Paths, int ct, int s
         int input_port;          // of target_sw
         int output_port;         // of target_sw
         int slot_num;            // assigned slot number for a node pair
-        system("rm output/sw*"); // delete previous output results
+        system("rm output/board*"); // delete previous output results
         if (flows.size() > 0)
                 system("rm output/flow*");                          // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
@@ -914,7 +917,7 @@ void show_paths_fullyconnected(vector<Cross_Paths> Crossing_Paths, int ct, int s
         {
                 cout << " SW " << i << " : " << endl;
                 char filename[100];
-                sprintf(filename, "output/sw%d", i); // save to output/
+                sprintf(filename, "output/board%d", i); // save to output/
                 char *fn = filename;
                 ofstream outputfile(fn, ios::app); // iostream append
                 int slots;
@@ -1079,7 +1082,7 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         int input_port;          // of target_sw
         int output_port;         // of target_sw
         int slot_num;            // assigned slot number for a node pair
-        system("rm output/sw*"); // delete previous output results
+        system("rm output/board*"); // delete previous output results
         if (flows.size() > 0)
                 system("rm output/flow*");                          // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
@@ -1145,7 +1148,7 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                      << " - [slot " << slot_num << "] -> ";
                         }
                         //     char filename[100];
-                        //     sprintf(filename, "output/sw%d", target_sw); // save to output/
+                        //     sprintf(filename, "output/board%d", target_sw); // save to output/
                         //     char* fn = filename;
                         //     ofstream outputfile(fn, ios::app); // iostream append
                         //     stringstream ss_op;  // output port
@@ -1195,7 +1198,7 @@ void show_paths_fcc(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         {
                 cout << " SW " << i << " : " << endl;
                 char filename[100];
-                sprintf(filename, "output/sw%d", i); // save to output/
+                sprintf(filename, "output/board%d", i); // save to output/
                 char *fn = filename;
                 ofstream outputfile(fn, ios::app); // iostream append
                 int slots;
@@ -1392,7 +1395,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         int input_port;          // of target_sw
         int output_port;         // of target_sw
         int slot_num;            // assigned slot number for a node pair
-        system("rm output/sw*"); // delete previous output results
+        system("rm output/board*"); // delete previous output results
         if (flows.size() > 0)
                 system("rm output/flow*");                          // delete previous output results
         cout << " === Routing path for each node pair ===" << endl; //routing information of each node pair
@@ -1465,7 +1468,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
                                      << " - [slot " << slot_num << "] -> ";
                         }
                         //     char filename[100];
-                        //     sprintf(filename, "output/sw%d", target_sw); // save to output/
+                        //     sprintf(filename, "output/board%d", target_sw); // save to output/
                         //     char* fn = filename;
                         //     ofstream outputfile(fn, ios::app); // iostream append
                         //     stringstream ss_op;  // output port
@@ -1515,7 +1518,7 @@ void show_paths_tf(vector<Cross_Paths> Crossing_Paths, int ct, int switch_num,
         {
                 cout << " SW " << topo_sws_uni[i] << " : " << endl;
                 char filename[100];
-                sprintf(filename, "output/sw%d", topo_sws_uni[i]); // save to output/
+                sprintf(filename, "output/board%d", topo_sws_uni[i]); // save to output/
                 char *fn = filename;
                 ofstream outputfile(fn, ios::app); // iostream append
                 int slots;
