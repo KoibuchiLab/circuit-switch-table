@@ -61,6 +61,11 @@ struct Flow
         vector<int> channels;
         // assigned time slot #
         int ID;
+
+        bool operator<(Flow &a)
+        {
+                return id < a.id;
+        }        
 };
 
 //
@@ -3336,6 +3341,9 @@ int main(int argc, char *argv[])
                         ct++;
                 }
         }
+
+        //reorder flows according to flow id in case of 1,0,2,... (defaultly 0,1,2,..)
+        sort(flows.begin(),flows.end());
 
         // ########################################## //
         // ##############   PHASE 2   ############### //
